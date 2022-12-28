@@ -93,69 +93,85 @@ bool AgentBase::Move(float dt)
 
 void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 {
-	const std::vector<AgentBase*>& agents{ pAgentBasePooler->GetEnabledAgents() };
-
-
-
-	
-
-	int row{};
-	int col{};
-
-	int range{};	
-
-	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
-	CheckCell(pAgentBasePooler, row, col);
-
-	while (range < 50 && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled()))
+	if (!m_pCell->GetClosestCell(m_TeamId))
 	{
-		++range;
-
-		//get current row and col
-		pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
-
-		row += range;
-		col -= range;
-
-		//cols above
-		for (int i{}; i < range * 2; ++i)
-		{
-			++col;
-			CheckCell(pAgentBasePooler, row, col);
-			
-		}
-		//rows right
-		for (int i{}; i < range * 2; ++i)
-		{
-			--row;
-			CheckCell(pAgentBasePooler, row, col);
-			
-		}
-		//cols below
-		for (int i{}; i < range * 2; ++i)
-		{
-			--col;
-			CheckCell(pAgentBasePooler, row, col);
-			
-		}
-		//rows left
-		for (int i{}; i < range * 2; ++i)
-		{
-			++row;
-			CheckCell(pAgentBasePooler, row, col);
-			
-		}
+		return;
 	}
 
-	return;
+	const std::vector<AgentBase*>& agents{ m_pCell->GetClosestCell(m_TeamId)->GetAgents()};
 
-	for (int i{}; i < pAgentBasePooler->GetEnabledAgentsCount(); ++i)
+	for (int i{}; i < m_pCell->GetClosestCell(m_TeamId)->GetAgentCount(); ++i)
 	{
 		if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
 		{
 			m_pTargetAgent = agents[i];
 		}
 	}
+
+
+
+
+	//return;
+
+	//const std::vector<AgentBase*>& agents{ pAgentBasePooler->GetEnabledAgents() };
+
+	//int row{};
+	//int col{};
+
+	//int range{};	
+
+	//pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
+	//CheckCell(pAgentBasePooler, row, col);
+
+	//while (range < 50 && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled()))
+	//{
+	//	++range;
+
+	//	//get current row and col
+	//	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
+
+	//	row += range;
+	//	col -= range;
+
+	//	//cols above
+	//	for (int i{}; i < range * 2; ++i)
+	//	{
+	//		++col;
+	//		CheckCell(pAgentBasePooler, row, col);
+	//		
+	//	}
+	//	//rows right
+	//	for (int i{}; i < range * 2; ++i)
+	//	{
+	//		--row;
+	//		CheckCell(pAgentBasePooler, row, col);
+	//		
+	//	}
+	//	//cols below
+	//	for (int i{}; i < range * 2; ++i)
+	//	{
+	//		--col;
+	//		CheckCell(pAgentBasePooler, row, col);
+	//		
+	//	}
+	//	//rows left
+	//	for (int i{}; i < range * 2; ++i)
+	//	{
+	//		++row;
+	//		CheckCell(pAgentBasePooler, row, col);
+	//		
+	//	}
+	//}
+
+	//return;
+
+	//for (int i{}; i < pAgentBasePooler->GetEnabledAgentsCount(); ++i)
+	//{
+	//	if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
+	//	{
+	//		m_pTargetAgent = agents[i];
+	//	}
+	//}
 }
 
 void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int& row, int& col)

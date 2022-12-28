@@ -7,6 +7,8 @@
 
 AgentBasePooler::AgentBasePooler(int size)
 {
+	m_TeamAgentsCount.resize(4);
+
 	m_DisabledAgentBasePointers.resize(size);
 	m_EnabledAgentBasePointers.resize(size);
 
@@ -39,6 +41,11 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
+	m_TeamAgentsCount[0] = 0;
+	m_TeamAgentsCount[1] = 0;
+	m_TeamAgentsCount[2] = 0;
+	m_TeamAgentsCount[3] = 0;
+
 	std::vector<int> toDisableIds{};
 	for (int i{}; i < m_EnabledAgentsCount; ++i)
 	{
@@ -48,6 +55,7 @@ void AgentBasePooler::Update(float dt)
 			continue;
 		}
 		m_EnabledAgentBasePointers[i]->Update(dt, this);
+		++m_TeamAgentsCount[m_EnabledAgentBasePointers[i]->GetTeamId()];
 	}
 
 	//start from the back because we swap the agent to be removed with the last agent in the vector
@@ -63,6 +71,8 @@ void AgentBasePooler::Update(float dt)
 		m_EnabledAgentBasePointers[toDisableIds[i]] = m_EnabledAgentBasePointers[m_EnabledAgentsCount];
 		m_EnabledAgentBasePointers[m_EnabledAgentsCount] = nullptr;
 	}
+
+	m_pGrid->Update(dt, this);
 }
 
 void AgentBasePooler::Render(bool renderGrid)
@@ -80,29 +90,10 @@ void AgentBasePooler::Render(bool renderGrid)
 
 void AgentBasePooler::GetEnabledAgentCountsByTeamId(int& id0, int& id1, int& id2, int& id3)
 {
-	id0 = 0;
-	id1 = 0;
-	id2 = 0;
-	id3 = 0;
-
-	for (int i{}; i < m_EnabledAgentsCount; ++i)
-	{
-		switch (m_EnabledAgentBasePointers[i]->GetTeamId())
-		{
-		case 0:
-			++id0;
-			break;
-		case 1:
-			++id1;
-			break;
-		case 2:
-			++id2;
-			break;
-		case 3:
-			++id3;
-			break;
-		};
-	}
+	id0 = m_TeamAgentsCount[0];
+	id1 = m_TeamAgentsCount[1];
+	id2 = m_TeamAgentsCount[2];
+	id3 = m_TeamAgentsCount[3];
 }
 
 AgentBase* AgentBasePooler::SpawnNewAgent(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)

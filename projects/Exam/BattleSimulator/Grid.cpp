@@ -13,7 +13,7 @@ Grid::Grid(int rows, int cols, float cellSize)
 	{
 		for (int c{}; c < cols; ++c)
 		{
-			m_CellPointers.push_back(new Cell{});
+			m_CellPointers.push_back(new Cell{GetCellId(r,c)});
 		}
 	}
 }
@@ -23,6 +23,14 @@ Grid::~Grid()
 	for (Cell* pCell : m_CellPointers)
 	{
 		SAFE_DELETE(pCell);
+	}
+}
+
+void Grid::Update(float dt, AgentBasePooler* pAgentBasePooler)
+{
+	for (Cell* pCell : m_CellPointers)
+	{
+		pCell->Update(dt, pAgentBasePooler);
 	}
 }
 

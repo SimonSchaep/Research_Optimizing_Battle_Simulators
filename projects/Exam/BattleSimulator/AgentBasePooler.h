@@ -36,6 +36,8 @@ private:
 
 	Grid* m_pGrid{};
 
+	std::vector<int> m_TeamAgentsCount{};
+
 	void AddToDisabledAgents(AgentBase* pAgent);
 };
 
