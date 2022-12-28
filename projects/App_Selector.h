@@ -7,7 +7,7 @@
 
 //---------- Registered Applications -----------
 #ifdef ActiveApp_Battle_Simulator_NoOptimizations
-#include "projects/exam/NoOptimizations/App_Battle_Simulator.h"
+#include "projects/exam/BattleSimulator/App_Battle_Simulator.h"
 typedef App_Battle_Simulator CurrentApp;
 #endif
 
