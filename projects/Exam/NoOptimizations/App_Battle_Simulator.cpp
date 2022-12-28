@@ -18,7 +18,9 @@ void App_Battle_Simulator::Start()
 	DEBUGRENDERER2D->GetActiveCamera()->SetZoom(55.0f);
 	DEBUGRENDERER2D->GetActiveCamera()->SetCenter(m_WorldDimensions / 2);
 
-	m_pAgentBasePooler = new AgentBasePooler{ 2'000'000 }; //2 mil agents ready to be spawned
+	int size{ 2'000'000 };
+
+	m_pAgentBasePooler = new AgentBasePooler{ size }; //2 mil agents ready to be spawned
 }
 
 void App_Battle_Simulator::Update(float deltaTime)
@@ -192,12 +194,10 @@ void App_Battle_Simulator::Render(float deltaTime) const
 		{
 			color = m_TeamColors[m_SpawningUnitTeamID];
 		}
-
-		Elite::Vector2* points{ new Elite::Vector2[4]{{xMin, yMin},{xMin,yMax},{xMax,yMax},{xMax,yMin}} };
-		DEBUGRENDERER2D->DrawPolygon(points, 4, color, -1);
-		delete[] points;
+		std::vector<Elite::Vector2> points{ {xMin, yMin},{xMin,yMax},{xMax,yMax},{xMax,yMin} };
+		DEBUGRENDERER2D->DrawPolygon(&points[0], 4, color, -1);
 	}	
 	
-	m_pAgentBasePooler->Render();
+	m_pAgentBasePooler->Render(false);
 }
 

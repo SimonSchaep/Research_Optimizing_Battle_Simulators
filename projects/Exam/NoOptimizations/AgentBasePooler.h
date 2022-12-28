@@ -1,6 +1,8 @@
 #pragma once
 #include "AgentBase.h"
 
+class Grid;
+
 class AgentBasePooler
 {
 public:
@@ -13,7 +15,9 @@ public:
 	AgentBasePooler& operator=(AgentBasePooler&& other) = delete;
 
 	void Update(float dt);
-	void Render();
+	void Render(bool renderGrid);
+
+	Grid* GetGrid() { return m_pGrid; };
 
 	const std::vector<AgentBase*>& GetEnabledAgents() { return m_EnabledAgentBasePointers; };
 	int GetEnabledAgentsCount() { return m_EnabledAgentsCount; };
@@ -29,6 +33,8 @@ private:
 
 	int m_DisabledAgentsCount{};
 	int m_EnabledAgentsCount{};
+
+	Grid* m_pGrid{};
 
 	void AddToDisabledAgents(AgentBase* pAgent);
 };

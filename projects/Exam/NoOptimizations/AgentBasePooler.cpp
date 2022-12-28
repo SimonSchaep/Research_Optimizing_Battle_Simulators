@@ -2,6 +2,8 @@
 #include "stdafx.h"
 
 #include "AgentBasePooler.h"
+#include "Grid.h"
+#include "Cell.h"
 
 AgentBasePooler::AgentBasePooler(int size)
 {
@@ -14,6 +16,9 @@ AgentBasePooler::AgentBasePooler(int size)
 	}
 
 	m_DisabledAgentsCount = size;
+
+
+	m_pGrid = new Grid{ 100, 100, 5 };
 }
 
 AgentBasePooler::~AgentBasePooler()
@@ -28,6 +33,8 @@ AgentBasePooler::~AgentBasePooler()
 	{
 		SAFE_DELETE(pAgent);
 	}
+
+	SAFE_DELETE(m_pGrid);
 }
 
 void AgentBasePooler::Update(float dt)
@@ -58,12 +65,17 @@ void AgentBasePooler::Update(float dt)
 	}
 }
 
-void AgentBasePooler::Render()
+void AgentBasePooler::Render(bool renderGrid)
 {
 	for (int i{}; i < m_EnabledAgentsCount; ++i)
 	{
 		m_EnabledAgentBasePointers[i]->Render();
 	}
+
+	if (renderGrid)
+	{
+		m_pGrid->Render();
+	}	
 }
 
 void AgentBasePooler::GetEnabledAgentCountsByTeamId(int& id0, int& id1, int& id2, int& id3)
@@ -102,6 +114,9 @@ AgentBase* AgentBasePooler::SpawnNewAgent(int teamId, const Elite::Vector2& posi
 	++m_EnabledAgentsCount;
 
 	pNewAgent->Enable(teamId, position, radius, color, healthAmount, damage, attackSpeed, attackRange, speed);
+
+	m_pGrid->GetCells()[m_pGrid->GetCellId(position)]->AddAgent(pNewAgent);
+
 	return pNewAgent;
 }
 

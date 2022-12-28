@@ -206,6 +206,8 @@
     <ClCompile Include="projects\Exam\NoOptimizations\AgentBase.cpp" />
     <ClCompile Include="projects\Exam\NoOptimizations\AgentBasePooler.cpp" />
     <ClCompile Include="projects\Exam\NoOptimizations\App_Battle_Simulator.cpp" />
+    <ClCompile Include="projects\Exam\NoOptimizations\Cell.cpp" />
+    <ClCompile Include="projects\Exam\NoOptimizations\Grid.cpp" />
     <ClCompile Include="projects\Exam\NoOptimizations\Health.cpp" />
     <ClCompile Include="projects\Exam\NoOptimizations\MeleeAttack.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -285,6 +287,8 @@
     <ClInclude Include="projects\Exam\NoOptimizations\AgentBase.h" />
     <ClInclude Include="projects\Exam\NoOptimizations\AgentBasePooler.h" />
     <ClInclude Include="projects\Exam\NoOptimizations\App_Battle_Simulator.h" />
+    <ClInclude Include="projects\Exam\NoOptimizations\Cell.h" />
+    <ClInclude Include="projects\Exam\NoOptimizations\Grid.h" />
     <ClInclude Include="projects\Exam\NoOptimizations\Health.h" />
     <ClInclude Include="projects\Exam\NoOptimizations\MeleeAttack.h" />
     <ClInclude Include="stdafx.h" />

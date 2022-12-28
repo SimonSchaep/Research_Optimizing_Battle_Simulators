@@ -3,6 +3,7 @@
 #include "MeleeAttack.h"
 
 class AgentBasePooler;
+class Cell;
 
 class AgentBase
 {
@@ -15,6 +16,8 @@ public:
 	AgentBase(AgentBase&& other) = delete;
 	AgentBase& operator=(AgentBase&& other) = delete;
 	
+	void SetCell(Cell* pCell) { m_pCell = pCell; };
+
 	void Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed);
 	void Disable();
 	bool GetIsEnabled() { return m_IsEnabled; };
@@ -48,11 +51,14 @@ private:
 
 	bool m_IsEnabled{};
 
+	Cell* m_pCell;
 
 	void CalculateVelocity();
 
 	bool Move(float dt);
 
 	void FindTarget(AgentBasePooler* pAgentBasePooler);
+
+	void CheckCell(AgentBasePooler* pAgentBasePooler, int& row, int& col);
 };
 

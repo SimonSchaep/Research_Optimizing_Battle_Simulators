@@ -3,6 +3,8 @@
 
 #include "AgentBase.h"
 #include "AgentBasePooler.h"
+#include "Cell.h"
+#include "Grid.h"
 
 AgentBase::AgentBase()
 {
@@ -28,13 +30,16 @@ void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius,
 void AgentBase::Disable()
 {
 	m_IsEnabled = false;
+
+	assert(m_pCell);
+	m_pCell->RemoveAgent(this);
 }
 
 void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler)
 {
 	if (m_Health.IsDead())
 	{
-		m_IsEnabled = false;
+		Disable();
 		return;
 	}
 
@@ -46,6 +51,12 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler)
 	if (!Move(dt) && m_pTargetAgent)
 	{
 		m_MeleeAttack.TryAttack(m_pTargetAgent);
+	}
+	//check if we need to update our cell after we moved
+	else if(pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)] != m_pCell)
+	{
+		m_pCell->RemoveAgent(this);
+		pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)]->AddAgent(this);		
 	}
 }
 
@@ -84,11 +95,79 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 {
 	const std::vector<AgentBase*>& agents{ pAgentBasePooler->GetEnabledAgents() };
 
+
+
+	
+
+	int row{};
+	int col{};
+
+	int range{};	
+
+	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
+	CheckCell(pAgentBasePooler, row, col);
+
+	while (range < 50 && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled()))
+	{
+		++range;
+
+		//get current row and col
+		pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
+
+		row += range;
+		col -= range;
+
+		//cols above
+		for (int i{}; i < range * 2; ++i)
+		{
+			++col;
+			CheckCell(pAgentBasePooler, row, col);
+			
+		}
+		//rows right
+		for (int i{}; i < range * 2; ++i)
+		{
+			--row;
+			CheckCell(pAgentBasePooler, row, col);
+			
+		}
+		//cols below
+		for (int i{}; i < range * 2; ++i)
+		{
+			--col;
+			CheckCell(pAgentBasePooler, row, col);
+			
+		}
+		//rows left
+		for (int i{}; i < range * 2; ++i)
+		{
+			++row;
+			CheckCell(pAgentBasePooler, row, col);
+			
+		}
+	}
+
+	return;
+
 	for (int i{}; i < pAgentBasePooler->GetEnabledAgentsCount(); ++i)
 	{
 		if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
 		{
 			m_pTargetAgent = agents[i];
+		}
+	}
+}
+
+void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int& row, int& col)
+{
+	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
+	Cell* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
+	const std::vector<AgentBase*>& agents = pCell->GetAgents();
+	for (int agentId{}; agentId < pCell->GetAgentCount(); ++agentId)
+	{
+		if (agents[agentId]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[agentId]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
+		{
+			m_pTargetAgent = agents[agentId];
 		}
 	}
 }

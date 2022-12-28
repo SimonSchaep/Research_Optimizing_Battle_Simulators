@@ -27,6 +27,8 @@
     <ClCompile Include="projects\Exam\NoOptimizations\App_Battle_Simulator.cpp" />
     <ClCompile Include="projects\Exam\NoOptimizations\Health.cpp" />
     <ClCompile Include="projects\Exam\NoOptimizations\MeleeAttack.cpp" />
+    <ClCompile Include="projects\Exam\NoOptimizations\Cell.cpp" />
+    <ClCompile Include="projects\Exam\NoOptimizations\Grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="projects\App_Selector.h" />
@@ -101,6 +103,8 @@
     <ClInclude Include="projects\Exam\NoOptimizations\App_Battle_Simulator.h" />
     <ClInclude Include="projects\Exam\NoOptimizations\Health.h" />
     <ClInclude Include="projects\Exam\NoOptimizations\MeleeAttack.h" />
+    <ClInclude Include="projects\Exam\NoOptimizations\Cell.h" />
+    <ClInclude Include="projects\Exam\NoOptimizations\Grid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
