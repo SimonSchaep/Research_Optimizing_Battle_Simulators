@@ -22,5 +22,7 @@ private:
 	std::vector<AgentBase*> m_Agents{};
 
 	int m_AgentCount{};
+
+	Cell* m_pClosestCell{};
 };
 
