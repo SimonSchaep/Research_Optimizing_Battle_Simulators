@@ -203,13 +203,13 @@
     <ClCompile Include="framework\EliteWindow\SDLWindow\SDLWindow.cpp" />
     <ClCompile Include="framework\EliteRendering\SDLIntegration\SDLHelpers\gl3w.c" />
     <ClCompile Include="framework\main.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\AgentBase.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\AgentBasePooler.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\App_Battle_Simulator.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\Cell.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\Grid.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\Health.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\MeleeAttack.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\AgentBase.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\AgentBasePooler.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\App_Battle_Simulator.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Cell.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Grid.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Health.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\MeleeAttack.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_Exam|Win32'">Create</PrecompiledHeader>
@@ -284,13 +284,13 @@
     <ClInclude Include="framework\EliteRendering\SDLIntegration\SDLHelpers\glcorearb.h" />
     <ClInclude Include="framework\EliteInterfaces\EIApp.h" />
     <ClInclude Include="projects\App_Selector.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\AgentBase.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\AgentBasePooler.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\App_Battle_Simulator.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\Cell.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\Grid.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\Health.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\MeleeAttack.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\AgentBase.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\AgentBasePooler.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\App_Battle_Simulator.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Cell.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Grid.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Health.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\MeleeAttack.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

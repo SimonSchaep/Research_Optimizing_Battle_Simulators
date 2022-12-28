@@ -22,13 +22,13 @@
     <ClCompile Include="framework\EliteAI\EliteGraphs\ENavGraph.cpp" />
     <ClCompile Include="framework\EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.cpp" />
     <ClCompile Include="framework\EliteAI\EliteDecisionMaking\EliteBehaviorTree\EBehaviorTree.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\AgentBase.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\AgentBasePooler.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\App_Battle_Simulator.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\Health.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\MeleeAttack.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\Cell.cpp" />
-    <ClCompile Include="projects\Exam\NoOptimizations\Grid.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\AgentBase.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\AgentBasePooler.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\App_Battle_Simulator.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Health.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\MeleeAttack.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Cell.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="projects\App_Selector.h" />
@@ -98,13 +98,13 @@
     <ClInclude Include="framework\EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h" />
     <ClInclude Include="framework\EliteAI\EliteDecisionMaking\EliteBehaviorTree\EBehaviorTree.h" />
     <ClInclude Include="framework\EliteAI\EliteGraphs\EInfluenceMap.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\AgentBase.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\AgentBasePooler.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\App_Battle_Simulator.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\Health.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\MeleeAttack.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\Cell.h" />
-    <ClInclude Include="projects\Exam\NoOptimizations\Grid.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\AgentBase.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\AgentBasePooler.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\App_Battle_Simulator.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Health.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\MeleeAttack.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Cell.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Grid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
