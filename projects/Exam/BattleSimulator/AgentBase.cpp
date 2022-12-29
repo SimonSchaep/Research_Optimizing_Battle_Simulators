@@ -93,6 +93,8 @@ bool AgentBase::Move(float dt)
 
 void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 {
+	m_pTargetAgent = nullptr;
+
 	int row{};
 	int col{};
 
