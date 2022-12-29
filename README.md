@@ -1,13 +1,12 @@
-# Optimizing Battle Simulators (Using AI Crowd Simulation)
+# Optimizing Battle Simulators
 
-This is a small research project on using crowd simulation to optimize a large amount of ai agents in a battle simulator.
-Inspired by the millions of agents that some battle simulators can simulate. A good example of this is Ultimate Epic Battle Simulator (https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/), and its sequel Ultimate Epic Battle Simulator 2 (https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/).
+
 
 
 There are generally two aspects to making a battle simulator:
 1. Using the GPU instead of CPU, not only for rendering but also for pathfinding and ai behavior.
-2. Efficient crowd simulation algorithms, 
-3. Efficient swarm intelligence algorithms
+2. Efficient crowd simulation algorithms
+3. Efficient partitioning algorithms
 
 
 we now implement a simple separation behavior to make the agents avoid each other
@@ -24,7 +23,7 @@ Though in our case, the closest enemy might be very far away from our agent
 
 
 
-For this project, I'll be looking into crowd simulation.
+
 
 
 The focus will still be on optimizing a battle simulator.
@@ -45,9 +44,54 @@ we need to simulate a crowd of soldiers, attacking another crowd of soldiers. Th
 
 
 
+INTRODUCTION:
+This is a small research project on how to optimize a large amount of ai agents in a battle simulator.
+Inspired by the millions of agents that some battle simulators can simulate. A good example of this is Ultimate Epic Battle Simulator (https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/), and its sequel Ultimate Epic Battle Simulator 2 (https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/).
+
+
+explain gpu
+explain crowd simulation
+explain pathfinding
 
 
 
+
+BASE APPLICATION:
+Explain how it's made
+what it can do
+measure multiple times
+post measurements in different situations
+explain smth about measurements
+
+
+
+
+
+PARTITIONING:
+explain different kinds of partitioning and what they're good for
+https://www.ijarnd.com/manuscripts/v3i10/V3I10-1144.pdf
+
+explain simple grid partitioning
+https://gameprogrammingpatterns.com/spatial-partition.html
+explain own implementation
+
+explain quad trees
+
+explain own implementation
+
+
+
+
+CROWD SIMULATION:
+https://en.wikipedia.org/wiki/Crowd_simulation
+explain different ways to simulate a crowd
+
+explain how to apply it to a battle simulator
+
+find how to do this optimized
+
+implement
+explain implementation
 
 
 
