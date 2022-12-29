@@ -18,9 +18,9 @@ void App_Battle_Simulator::Start()
 	DEBUGRENDERER2D->GetActiveCamera()->SetZoom(55.0f);
 	DEBUGRENDERER2D->GetActiveCamera()->SetCenter(m_WorldDimensions / 2);
 
-	int size{ 2'000'000 };
+	int size{ 500'000 };
 
-	m_pAgentBasePooler = new AgentBasePooler{ size }; //2 mil agents ready to be spawned
+	m_pAgentBasePooler = new AgentBasePooler{ size }; //500k agents ready to be spawned
 }
 
 void App_Battle_Simulator::Update(float deltaTime)
