@@ -60,11 +60,25 @@ void AgentBase::CalculateVelocity()
 	{
 		m_Velocity = m_pTargetAgent->GetPosition() - m_Position;
 		m_Velocity.Normalize();
-		m_Velocity *= m_Speed;
+	}
+	else
+	{
+		m_Velocity = m_TargetPosition - m_Position;
+		m_Velocity.Normalize();
+	}
+
+	for (int i{}; i < m_NeighborCount; ++i)
+	{
+		m_Velocity += ((m_Position - m_Neighbors[i]->GetPosition()) / ((m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 1) ? 1 : m_Neighbors[i]->GetPosition().DistanceSquared(m_Position)));
+	}
+
+	const float epsilon{0.1f};
+	if (m_Velocity.MagnitudeSquared() <= epsilon)
+	{
+		m_Velocity = { 0,0 };
 		return;
 	}
 
-	m_Velocity = m_TargetPosition - m_Position;
 	m_Velocity.Normalize();
 	m_Velocity *= m_Speed;
 }
@@ -82,6 +96,10 @@ bool AgentBase::Move(float dt)
 
 void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 {
+	const float neighborRadiusSquared{ 40 };
+
+	m_NeighborCount = 0;
+
 	const std::vector<AgentBase*>& agents{ pAgentBasePooler->GetEnabledAgents() };
 
 	for (int i{}; i < pAgentBasePooler->GetEnabledAgentsCount(); ++i)
@@ -89,6 +107,18 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 		if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
 		{
 			m_pTargetAgent = agents[i];
+		}
+		else if (agents[i]->GetTeamId() == m_TeamId && agents[i] != this && agents[i]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
+		{
+			if (m_Neighbors.size() > m_NeighborCount)
+			{
+				m_Neighbors[m_NeighborCount] = agents[i];
+			}
+			else
+			{
+				m_Neighbors.push_back(agents[i]);
+			}
+			++m_NeighborCount;
 		}
 	}
 }

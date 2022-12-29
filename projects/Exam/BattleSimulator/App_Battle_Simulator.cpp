@@ -169,7 +169,7 @@ void App_Battle_Simulator::ProcessInput()
 				//spawn agents in random position in drawed box
 				for (int i{}; i < (xMax - xMin) * (yMax - yMin) / 4; ++i)
 				{
-					m_pAgentBasePooler->SpawnNewAgent(m_SpawningUnitTeamID, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+					m_pAgentBasePooler->SpawnNewAgent(m_SpawningUnitTeamID, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 3, 10);
 				}
 			}
 		}			

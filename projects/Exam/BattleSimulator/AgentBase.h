@@ -48,6 +48,9 @@ private:
 
 	bool m_IsEnabled{};
 
+	std::vector<AgentBase*> m_Neighbors{};
+	int m_NeighborCount{};
+
 
 	void CalculateVelocity();
 
