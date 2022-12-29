@@ -14,6 +14,7 @@ Cell::Cell(int id)
 
 Cell::~Cell()
 {
+	
 }
 
 void Cell::Update(float dt, AgentBasePooler* pAgentBasePooler)
@@ -92,41 +93,17 @@ void Cell::CheckCell(AgentBasePooler* pAgentBasePooler, bool& stop, int row, int
 	//if we there are agents of a team in the cell
 	//set the closest cell of the other teams to this one
 	//but only if they didn't already have a (closer) cell
-	if (pCell->GetAgentCountByTeam(0) > 0)
+	for (int i{}; i < 4; ++i)
 	{
-		if(m_pClosestCells[1] == 0)
-			m_pClosestCells[1] = pCell;
-		if (m_pClosestCells[2] == 0)
-			m_pClosestCells[2] = pCell;
-		if (m_pClosestCells[3] == 0)
-			m_pClosestCells[3] = pCell;
-	}
-	if (pCell->GetAgentCountByTeam(1) > 0)
-	{
-		if (m_pClosestCells[2] == 0)
-			m_pClosestCells[2] = pCell;
-		if (m_pClosestCells[3] == 0)
-			m_pClosestCells[3] = pCell;
-		if (m_pClosestCells[0] == 0)
-			m_pClosestCells[0] = pCell;
-	}
-	if (pCell->GetAgentCountByTeam(2) > 0)
-	{
-		if (m_pClosestCells[3] == 0)
-			m_pClosestCells[3] = pCell;
-		if (m_pClosestCells[0] == 0)
-			m_pClosestCells[0] = pCell;
-		if (m_pClosestCells[1] == 0)
-			m_pClosestCells[1] = pCell;
-	}
-	if (pCell->GetAgentCountByTeam(3) > 0)
-	{
-		if (m_pClosestCells[0] == 0)
-			m_pClosestCells[0] = pCell;
-		if (m_pClosestCells[1] == 0)
-			m_pClosestCells[1] = pCell;
-		if (m_pClosestCells[2] == 0)
-			m_pClosestCells[2] = pCell;
+		if (pCell->GetAgentCountByTeam(i) > 0)
+		{
+			if (m_pClosestCells[(i + 1) % 4] == 0)
+				m_pClosestCells[(i + 1) % 4] = pCell;
+			if (m_pClosestCells[(i + 2) % 4] == 0)
+				m_pClosestCells[(i + 2) % 4] = pCell;
+			if (m_pClosestCells[(i + 3) % 4] == 0)
+				m_pClosestCells[(i + 3) % 4] = pCell;
+		}
 	}
 
 	if ((m_pClosestCells[0] != 0 || m_TeamAgentCounts[0] == 0) && 
