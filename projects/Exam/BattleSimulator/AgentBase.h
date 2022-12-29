@@ -53,6 +53,10 @@ private:
 
 	Cell* m_pCell;
 
+	std::vector<AgentBase*> m_Neighbors{};
+
+	int m_NeighborCount{};
+
 	void CalculateVelocity();
 
 	bool Move(float dt);
