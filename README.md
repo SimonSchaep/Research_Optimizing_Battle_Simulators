@@ -82,6 +82,15 @@ explain own implementation
 
 
 
+
+AGENT SIZE:
+what if very large agents are present?
+without partitioning, subtract distance by own radius and radius of target
+with partitioning, will not always find closest target
+
+
+
+
 CROWD SIMULATION:
 https://en.wikipedia.org/wiki/Crowd_simulation
 explain different ways to simulate a crowd
