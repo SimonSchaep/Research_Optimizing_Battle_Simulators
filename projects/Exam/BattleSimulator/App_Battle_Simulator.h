@@ -39,6 +39,11 @@ private:
 	Elite::Vector2 M_MousePos1{};
 	Elite::Vector2 M_MousePos2{};
 
+	bool m_RenderGrid{};
+
+	int m_BenchmarkSpawnCount{ 500 };
+	void SpawnBenchmark(int countPerTeam);
+
 	void UpdateAndRenderUI();
 
 	void ProcessInput();
