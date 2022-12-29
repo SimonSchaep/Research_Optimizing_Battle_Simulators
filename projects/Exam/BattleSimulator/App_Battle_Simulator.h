@@ -39,9 +39,13 @@ private:
 	Elite::Vector2 M_MousePos1{};
 	Elite::Vector2 M_MousePos2{};
 
+	int m_BenchmarkSpawnCount{500};
+
 	void UpdateAndRenderUI();
 
 	void ProcessInput();
+
+	void SpawnBenchmark(int countPerTeam);
 
 	const std::vector<Elite::Color> m_TeamColors{ {1,0,0}, {0,0,1}, {0,1,0}, {1,1,0} };
 
