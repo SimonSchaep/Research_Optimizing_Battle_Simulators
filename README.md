@@ -104,6 +104,8 @@ explain implementation
 
 
 
+can decrease neighbor radius to decrease spacing between agents
+
 
 
 
