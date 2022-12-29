@@ -33,6 +33,7 @@ void AgentBase::Disable()
 
 	assert(m_pCell);
 	m_pCell->RemoveAgent(this);
+	m_pCell = nullptr;
 }
 
 void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler)

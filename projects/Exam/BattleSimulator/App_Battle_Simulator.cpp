@@ -180,7 +180,7 @@ void App_Battle_Simulator::ProcessInput()
 			//disable agents that need to be disabled
 			for (AgentBase* pAgent : agentsToDisable)
 			{
-				pAgent->Disable();
+				pAgent->Damage(9999);
 			}
 		}
 		else
