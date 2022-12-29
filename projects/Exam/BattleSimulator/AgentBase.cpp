@@ -98,6 +98,7 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 		return;
 	}
 
+	//get closest cell for this team
 	const std::vector<AgentBase*>& agents{ m_pCell->GetClosestCell(m_TeamId)->GetAgents()};
 
 	for (int i{}; i < m_pCell->GetClosestCell(m_TeamId)->GetAgentCount(); ++i)

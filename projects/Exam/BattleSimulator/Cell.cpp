@@ -23,6 +23,11 @@ void Cell::Update(float dt, AgentBasePooler* pAgentBasePooler)
 		return;
 	}
 
+	m_pClosestCells[0] = nullptr;
+	m_pClosestCells[1] = nullptr;
+	m_pClosestCells[2] = nullptr;
+	m_pClosestCells[3] = nullptr;
+
 	int row{};
 	int col{};
 
@@ -35,7 +40,7 @@ void Cell::Update(float dt, AgentBasePooler* pAgentBasePooler)
 	//check self
 	CheckCell(pAgentBasePooler, stop, row, col);
 
-	while (range < 50 && !stop)
+	while (range < 100 && !stop)
 	{
 		++range;
 
