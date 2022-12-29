@@ -69,10 +69,13 @@ void AgentBase::CalculateVelocity()
 
 	for (int i{}; i < m_NeighborCount; ++i)
 	{
-		m_Velocity += ((m_Position - m_Neighbors[i]->GetPosition()) / ((m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 1) ? 1 : m_Neighbors[i]->GetPosition().DistanceSquared(m_Position)));
+		//make sure velocity can't go infinitely high
+		m_Velocity += ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), 0.01f));
 	}
 
-	const float epsilon{0.1f};
+	//don't move if it's only a small amount
+	//this makes shaking less prevalent
+	const float epsilon{0.2f};
 	if (m_Velocity.MagnitudeSquared() <= epsilon)
 	{
 		m_Velocity = { 0,0 };
