@@ -35,6 +35,6 @@ private:
 
 	std::vector<Cell*> m_pClosestCells{4}; //holds closest cell for every team
 
-	void CheckCell(AgentBasePooler* pAgentBasePooler, bool& stop, int& row, int& col);
+	void CheckCell(AgentBasePooler* pAgentBasePooler, bool& stop, int row, int col);
 };
 

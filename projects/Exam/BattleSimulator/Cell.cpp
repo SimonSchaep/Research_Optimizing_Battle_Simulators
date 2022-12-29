@@ -30,46 +30,23 @@ void Cell::Update(float dt, AgentBasePooler* pAgentBasePooler)
 
 	bool stop{};
 
+	//get current row and col
 	pAgentBasePooler->GetGrid()->GetRowCol(m_Id, row, col);
+	//check self
 	CheckCell(pAgentBasePooler, stop, row, col);
 
 	while (range < 50 && !stop)
 	{
 		++range;
 
-		//get current row and col
-		pAgentBasePooler->GetGrid()->GetRowCol(m_Id, row, col);
-
-		row += range;
-		col -= range;
-
-		//cols above
-		for (int i{}; i < range * 2; ++i)
+		for (int r{ -range }; r <= range; ++r)
 		{
-			++col;
-			CheckCell(pAgentBasePooler, stop, row, col);
-
-		}
-		//rows right
-		for (int i{}; i < range * 2; ++i)
-		{
-			--row;
-			CheckCell(pAgentBasePooler, stop, row, col);
-
-		}
-		//cols below
-		for (int i{}; i < range * 2; ++i)
-		{
-			--col;
-			CheckCell(pAgentBasePooler, stop, row, col);
-
-		}
-		//rows left
-		for (int i{}; i < range * 2; ++i)
-		{
-			++row;
-			CheckCell(pAgentBasePooler, stop, row, col);
-
+			CheckCell(pAgentBasePooler, stop, row + r, col + (range - abs(r)));
+			if (abs(r) != range) //if not at very bottom or very top
+			{
+				//check second cell opposite to previous one checked
+				CheckCell(pAgentBasePooler, stop, row + r, col - (range - abs(r)));
+			}
 		}
 	}
 }
@@ -101,12 +78,15 @@ void Cell::AddAgent(AgentBase* pAgent)
 	++m_TeamAgentCounts[pAgent->GetTeamId()];
 }
 
-void Cell::CheckCell(AgentBasePooler* pAgentBasePooler, bool& stop, int& row, int& col)
+void Cell::CheckCell(AgentBasePooler* pAgentBasePooler, bool& stop, int row, int col)
 {
+	//get cell
 	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
 	Cell* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
-	const std::vector<AgentBase*>& agents = pCell->GetAgents();
 
+	//if we there are agents of a team in the cell
+	//set the closest cell of the other teams to this one
+	//but only if they didn't already have a (closer) cell
 	if (pCell->GetAgentCountByTeam(0) > 0)
 	{
 		if(m_pClosestCells[1] == 0)
