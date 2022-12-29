@@ -109,17 +109,3 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 		}
 	}
 }
-
-void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int& row, int& col)
-{
-	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
-	Cell* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
-	const std::vector<AgentBase*>& agents = pCell->GetAgents();
-	for (int agentId{}; agentId < pCell->GetAgentCount(); ++agentId)
-	{
-		if (agents[agentId]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[agentId]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
-		{
-			m_pTargetAgent = agents[agentId];
-		}
-	}
-}

@@ -58,7 +58,5 @@ private:
 	bool Move(float dt);
 
 	void FindTarget(AgentBasePooler* pAgentBasePooler);
-
-	void CheckCell(AgentBasePooler* pAgentBasePooler, int& row, int& col);
 };
 
