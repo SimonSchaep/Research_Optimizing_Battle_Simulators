@@ -80,6 +80,21 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Text("%.0f Yellow", float(id3Count));
 	ImGui::Unindent();
 
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::InputInt("Count", &m_BenchmarkSpawnCount, 100);
+	ImGui::Spacing();
+	if (ImGui::Button("Start benchmark"))
+	{
+		SpawnBenchmark(m_BenchmarkSpawnCount);
+		m_IsPaused = false;
+	}
+
 	//End
 	ImGui::PopAllowKeyboardFocus();
 	ImGui::End();
@@ -199,5 +214,62 @@ void App_Battle_Simulator::Render(float deltaTime) const
 	}	
 	
 	m_pAgentBasePooler->Render();
+}
+
+void App_Battle_Simulator::SpawnBenchmark(int countPerTeam)
+{
+	float xMin{ 150 };
+	float xMax{ 350 };
+	float yMin{ 350 };
+	float yMax{ 450 };
+
+	Elite::Color color{ m_TeamColors[0] };
+
+	//spawn agents in random position in drawed box
+	for (int i{}; i < countPerTeam; ++i)
+	{
+		m_pAgentBasePooler->SpawnNewAgent(0, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+	}
+
+
+	xMin = 150;
+	xMax = 350;
+	yMin = 50;
+	yMax = 150;
+
+	color = m_TeamColors[1];
+
+	//spawn agents in random position in drawed box
+	for (int i{}; i < countPerTeam; ++i)
+	{
+		m_pAgentBasePooler->SpawnNewAgent(1, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+	}
+
+
+	xMin = 350;
+	xMax = 450;
+	yMin = 150;
+	yMax = 350;
+
+	color = m_TeamColors[2];
+
+	//spawn agents in random position in drawed box
+	for (int i{}; i < countPerTeam; ++i)
+	{
+		m_pAgentBasePooler->SpawnNewAgent(2, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+	}
+
+	xMin = 50;
+	xMax = 150;
+	yMin = 150;
+	yMax = 350;
+
+	color = m_TeamColors[3];
+
+	//spawn agents in random position in drawed box
+	for (int i{}; i < countPerTeam; ++i)
+	{
+		m_pAgentBasePooler->SpawnNewAgent(3, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+	}
 }
 
