@@ -37,7 +37,7 @@ void AgentBase::Disable()
 	m_pCell = nullptr;
 }
 
-void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool checkCell)
+void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell)
 {
 	if (checkCell && m_Health.IsDead()) //disable also checks cell, so for multithreading, this check needs to happen in separate function
 	{
@@ -49,7 +49,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool checkCe
 
 	m_MeleeAttack.Update(dt);
 
-	CalculateVelocity();
+	CalculateVelocity(separation);
 	if (!Move(dt) && m_pTargetAgent)
 	{
 		m_MeleeAttack.TryAttack(m_pTargetAgent);
@@ -83,7 +83,7 @@ void AgentBase::Render()
 	DEBUGRENDERER2D->DrawSolidCircle(m_Position, m_Radius, { 0,0 }, m_Color);
 }
 
-void AgentBase::CalculateVelocity()
+void AgentBase::CalculateVelocity(bool separation)
 {
 	if (m_pTargetAgent)
 	{

@@ -25,7 +25,7 @@ public:
 	const Elite::Vector2& GetPosition() { return m_Position; };
 	int GetTeamId() { return m_TeamId; };
 
-	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool checkCell = true);
+	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell = true);
 	void CheckIfCellChanged(AgentBasePooler* pAgentBasePooler);
 	void Render();
 
@@ -54,7 +54,7 @@ private:
 
 	Cell* m_pCell;
 
-	void CalculateVelocity();
+	void CalculateVelocity(bool separation);
 
 	bool Move(float dt);
 
