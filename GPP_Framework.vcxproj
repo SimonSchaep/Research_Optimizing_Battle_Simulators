@@ -206,8 +206,8 @@
     <ClCompile Include="projects\Exam\BattleSimulator\AgentBase.cpp" />
     <ClCompile Include="projects\Exam\BattleSimulator\AgentBasePooler.cpp" />
     <ClCompile Include="projects\Exam\BattleSimulator\App_Battle_Simulator.cpp" />
-    <ClCompile Include="projects\Exam\BattleSimulator\Cell.cpp" />
-    <ClCompile Include="projects\Exam\BattleSimulator\Grid.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Node.cpp" />
+    <ClCompile Include="projects\Exam\BattleSimulator\Tree.cpp" />
     <ClCompile Include="projects\Exam\BattleSimulator\Health.cpp" />
     <ClCompile Include="projects\Exam\BattleSimulator\MeleeAttack.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -287,8 +287,8 @@
     <ClInclude Include="projects\Exam\BattleSimulator\AgentBase.h" />
     <ClInclude Include="projects\Exam\BattleSimulator\AgentBasePooler.h" />
     <ClInclude Include="projects\Exam\BattleSimulator\App_Battle_Simulator.h" />
-    <ClInclude Include="projects\Exam\BattleSimulator\Cell.h" />
-    <ClInclude Include="projects\Exam\BattleSimulator\Grid.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Node.h" />
+    <ClInclude Include="projects\Exam\BattleSimulator\Tree.h" />
     <ClInclude Include="projects\Exam\BattleSimulator\Health.h" />
     <ClInclude Include="projects\Exam\BattleSimulator\MeleeAttack.h" />
     <ClInclude Include="stdafx.h" />

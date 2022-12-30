@@ -2,8 +2,8 @@
 #include "stdafx.h"
 
 #include "AgentBasePooler.h"
-#include "Grid.h"
-#include "Cell.h"
+#include "Tree.h"
+#include "Node.h"
 #include <ppl.h>
 
 AgentBasePooler::AgentBasePooler(int size)
@@ -19,7 +19,7 @@ AgentBasePooler::AgentBasePooler(int size)
 	m_DisabledAgentsCount = size;
 
 
-	m_pGrid = new Grid{ 100, 100, 5 };
+	m_pGrid = new Tree{ 100, 100, 5 };
 }
 
 AgentBasePooler::~AgentBasePooler()

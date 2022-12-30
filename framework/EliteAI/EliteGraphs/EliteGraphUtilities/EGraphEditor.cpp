@@ -5,7 +5,7 @@
 bool Elite::GraphEditor::UpdateGraph(GridGraph<GridTerrainNode, GraphConnection>* pGraph)
 {
 #pragma region UI
-	//Extra Grid Terrain UI
+	//Extra Tree Terrain UI
 	{ 
 		//Setup
 		int menuWidth = 115;

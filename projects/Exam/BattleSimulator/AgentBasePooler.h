@@ -1,7 +1,7 @@
 #pragma once
 #include "AgentBase.h"
 
-class Grid;
+class Tree;
 
 class AgentBasePooler
 {
@@ -17,7 +17,7 @@ public:
 	void Update(float dt);
 	void Render(bool renderGrid);
 
-	Grid* GetGrid() { return m_pGrid; };
+	Tree* GetGrid() { return m_pGrid; };
 
 	bool& GetUsingMultiThreading() { return m_UsingMultithreading; };
 	bool& GetUsingSeparation() { return m_UsingSeparation; };
@@ -37,7 +37,7 @@ private:
 	int m_DisabledAgentsCount{};
 	int m_EnabledAgentsCount{};
 
-	Grid* m_pGrid{};
+	Tree* m_pGrid{};
 
 	bool m_UsingMultithreading{false};
 	bool m_UsingSeparation{false};

@@ -1,16 +1,16 @@
 #pragma once
 class AgentBase;
 
-class Cell
+class Node
 {
 public:
-	Cell();
-	~Cell();
+	Node();
+	~Node();
 
-	Cell(const Cell& other) = delete;
-	Cell& operator=(const Cell& other) = delete;
-	Cell(Cell&& other) = delete;
-	Cell& operator=(Cell&& other) = delete;
+	Node(const Node& other) = delete;
+	Node& operator=(const Node& other) = delete;
+	Node(Node&& other) = delete;
+	Node& operator=(Node&& other) = delete;
 
 	const std::vector<AgentBase*>& GetAgents() { return m_Agents; };
 	int GetAgentCount() { return m_AgentCount; };

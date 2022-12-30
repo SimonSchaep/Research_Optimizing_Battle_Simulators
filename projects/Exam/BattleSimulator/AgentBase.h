@@ -3,7 +3,7 @@
 #include "MeleeAttack.h"
 
 class AgentBasePooler;
-class Cell;
+class Node;
 
 class AgentBase
 {
@@ -16,7 +16,7 @@ public:
 	AgentBase(AgentBase&& other) = delete;
 	AgentBase& operator=(AgentBase&& other) = delete;
 	
-	void SetCell(Cell* pCell) { m_pCell = pCell; };
+	void SetCell(Node* pCell) { m_pCell = pCell; };
 
 	void Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed);
 	
@@ -52,7 +52,7 @@ private:
 
 	bool m_IsEnabled{};
 
-	Cell* m_pCell;
+	Node* m_pCell;
 
 	std::vector<AgentBase*> m_Neighbors{};
 

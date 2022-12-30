@@ -3,8 +3,8 @@
 
 #include "AgentBase.h"
 #include "AgentBasePooler.h"
-#include "Cell.h"
-#include "Grid.h"
+#include "Node.h"
+#include "Tree.h"
 #include <ppl.h>
 
 AgentBase::AgentBase()
@@ -174,7 +174,7 @@ void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
 	const float neighborRadiusSquared{ 40 };
 
 	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
-	Cell* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
+	Node* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
 	const std::vector<AgentBase*>& agents = pCell->GetAgents();
 	for (int agentId{}; agentId < pCell->GetAgentCount(); ++agentId)
 	{

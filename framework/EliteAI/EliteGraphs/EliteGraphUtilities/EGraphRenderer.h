@@ -101,7 +101,7 @@ namespace Elite
 	{
 		if (renderNodes)
 		{
-			//Nodes/Grid
+			//Nodes/Tree
 			for (auto r = 0; r < pGraph->m_NrOfRows; ++r)
 			{
 				for (auto c = 0; c < pGraph->m_NrOfColumns; ++c)
