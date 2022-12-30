@@ -115,7 +115,9 @@ Implement efficient collision system
 Convert to 3D
 Add animation
 
-
+add multithreading to partitioning
+several issues with that
+adding and removing agents to cells/resizing grid, causes asynchronisation, this could be fixed by buffering the agents, but this will then cause performance to go down again
 
 
 
