@@ -4,11 +4,10 @@
 #include "AgentBasePooler.h"
 #include "Grid.h"
 #include "Cell.h"
+#include <ppl.h>
 
 AgentBasePooler::AgentBasePooler(int size)
 {
-	m_TeamAgentsCount.resize(4);
-
 	m_DisabledAgentBasePointers.resize(size);
 	m_EnabledAgentBasePointers.resize(size);
 
@@ -41,27 +40,61 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
-	m_TeamAgentsCount[0] = 0;
-	m_TeamAgentsCount[1] = 0;
-	m_TeamAgentsCount[2] = 0;
-	m_TeamAgentsCount[3] = 0;
+	std::vector<int> toDisableIds;
+	toDisableIds.reserve(m_EnabledAgentsCount);
 
-	std::vector<int> toDisableIds{};
-	for (int i{}; i < m_EnabledAgentsCount; ++i)
+	if (m_UsingMultithreading)
 	{
-		if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+		concurrency::parallel_for(0, m_EnabledAgentsCount, [this, dt, &toDisableIds](int i)
+			{
+				if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+				{
+					toDisableIds.push_back(i);
+				}
+				else
+				{
+					m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation, false);
+				}
+			});
+
+		for (int i{}; i < m_EnabledAgentsCount; ++i)
 		{
-			toDisableIds.push_back(i);
-			continue;
+			if (m_EnabledAgentBasePointers[i]->GetIsEnabled())
+			{
+				m_EnabledAgentBasePointers[i]->CheckIfCellChanged(this);
+			}			
 		}
-		m_EnabledAgentBasePointers[i]->Update(dt, this);
-		++m_TeamAgentsCount[m_EnabledAgentBasePointers[i]->GetTeamId()];
+
+		//since we are using multiple threads, the vector won't be sorted
+		//but we need it to be sorted for the disabling to work
+		std::sort(toDisableIds.begin(), toDisableIds.end());
+	}
+	else
+	{
+		for (int i{}; i < m_EnabledAgentsCount; ++i)
+		{
+			if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+			{
+				toDisableIds.push_back(i);
+			}
+			else
+			{
+				m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation, true);
+			}
+		}
 	}
 
 	//start from the back because we swap the agent to be removed with the last agent in the vector
 	//if the last one is also in the to remove list, it would no longer be removed if we started from the front
 	for (int i{ int(toDisableIds.size()) - 1}; i >= 0; --i)
 	{
+#ifdef DEBUG
+		if (toDisableIds[i] < 0)//has contained a negative value once in debug mode, no idea why
+		{
+			continue;
+		}
+#endif // DEBUG		
+
 		// add to disabled agents
 		m_DisabledAgentBasePointers[m_DisabledAgentsCount] = m_EnabledAgentBasePointers[toDisableIds[i]];
 		++m_DisabledAgentsCount;
@@ -71,8 +104,6 @@ void AgentBasePooler::Update(float dt)
 		m_EnabledAgentBasePointers[toDisableIds[i]] = m_EnabledAgentBasePointers[m_EnabledAgentsCount];
 		m_EnabledAgentBasePointers[m_EnabledAgentsCount] = nullptr;
 	}
-
-	m_pGrid->Update(dt, this);
 }
 
 void AgentBasePooler::Render(bool renderGrid)
@@ -90,10 +121,29 @@ void AgentBasePooler::Render(bool renderGrid)
 
 void AgentBasePooler::GetEnabledAgentCountsByTeamId(int& id0, int& id1, int& id2, int& id3)
 {
-	id0 = m_TeamAgentsCount[0];
-	id1 = m_TeamAgentsCount[1];
-	id2 = m_TeamAgentsCount[2];
-	id3 = m_TeamAgentsCount[3];
+	id0 = 0;
+	id1 = 0;
+	id2 = 0;
+	id3 = 0;
+
+	for (int i{}; i < m_EnabledAgentsCount; ++i)
+	{
+		switch (m_EnabledAgentBasePointers[i]->GetTeamId())
+		{
+		case 0:
+			++id0;
+			break;
+		case 1:
+			++id1;
+			break;
+		case 2:
+			++id2;
+			break;
+		case 3:
+			++id3;
+			break;
+		};
+	}
 }
 
 AgentBase* AgentBasePooler::SpawnNewAgent(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)

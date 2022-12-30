@@ -8,7 +8,7 @@ using namespace Elite;
 
 //Destructor
 App_Battle_Simulator::~App_Battle_Simulator()
-{
+{	
 	SAFE_DELETE(m_pAgentBasePooler);
 }
 
@@ -101,7 +101,19 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Spacing();
 	ImGui::Spacing();
 
-	ImGui::Checkbox("Render Grid", &m_RenderGrid);
+	ImGui::Checkbox(" Separation", &m_pAgentBasePooler->GetUsingSeparation());
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::Checkbox(" Render Grid", &m_RenderGrid);
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
 
 	//End
 	ImGui::PopAllowKeyboardFocus();
@@ -162,7 +174,7 @@ void App_Battle_Simulator::ProcessInput()
 		float xMax{ max(M_MousePos1.x, M_MousePos2.x) };
 		float yMin{ min(M_MousePos1.y, M_MousePos2.y) };
 		float yMax{ max(M_MousePos1.y, M_MousePos2.y) };
-
+		
 		//if removing agents
 		if (m_SpawningUnitTeamID == -1)
 		{
@@ -195,7 +207,7 @@ void App_Battle_Simulator::ProcessInput()
 					m_pAgentBasePooler->SpawnNewAgent(m_SpawningUnitTeamID, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
 				}
 			}
-		}
+		}			
 	}
 }
 
@@ -210,15 +222,15 @@ void App_Battle_Simulator::Render(float deltaTime) const
 		float yMin{ min(M_MousePos1.y, M_MousePos2.y) };
 		float yMax{ max(M_MousePos1.y, M_MousePos2.y) };
 
-		Elite::Color color{ 1,1,1 };
+		Elite::Color color{1,1,1};
 		if (m_SpawningUnitTeamID != -1)
 		{
 			color = m_TeamColors[m_SpawningUnitTeamID];
 		}
 		std::vector<Elite::Vector2> points{ {xMin, yMin},{xMin,yMax},{xMax,yMax},{xMax,yMin} };
 		DEBUGRENDERER2D->DrawPolygon(&points[0], 4, color, -1);
-	}
-
+	}	
+	
 	m_pAgentBasePooler->Render(m_RenderGrid);
 }
 
@@ -278,3 +290,4 @@ void App_Battle_Simulator::SpawnBenchmark(int countPerTeam)
 		m_pAgentBasePooler->SpawnNewAgent(3, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
 	}
 }
+
