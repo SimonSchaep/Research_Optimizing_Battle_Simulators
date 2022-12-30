@@ -3,7 +3,6 @@
 
 #include "AgentBase.h"
 #include "AgentBasePooler.h"
-#include "QuadTreeNode.h"
 #include <ppl.h>
 
 AgentBase::AgentBase()
@@ -60,12 +59,8 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 		m_Position.y < m_pQuadTreeNode->GetMinBounds().y || m_Position.y >= m_pQuadTreeNode->GetMaxBounds().y
 		)) //check if left bounds of current node
 	{
-		//first set position to somewhere in old node, so it can be properly processed in the tree
-		Elite::Vector2 position{ m_Position };
-		m_Position = m_pQuadTreeNode->GetMinBounds();
 		pAgentBasePooler->GetQuadTreeRoot()->RemoveAgent(this);
-		m_Position = position;
-		pAgentBasePooler->GetQuadTreeRoot()->AddAgent(this);		
+		pAgentBasePooler->GetQuadTreeRoot()->AddAgent(this);
 	}
 }
 
@@ -82,11 +77,7 @@ void AgentBase::CheckIfCellChanged(AgentBasePooler* pAgentBasePooler)
 		m_Position.y < m_pQuadTreeNode->GetMinBounds().y || m_Position.y >= m_pQuadTreeNode->GetMaxBounds().y
 		) //check if left bounds of current node
 	{
-		//first set position to somewhere in old node, so it can be properly processed in the tree
-		Elite::Vector2 position{ m_Position };
-		m_Position = m_pQuadTreeNode->GetMinBounds();
 		pAgentBasePooler->GetQuadTreeRoot()->RemoveAgent(this);
-		m_Position = position;
 		pAgentBasePooler->GetQuadTreeRoot()->AddAgent(this);
 	}
 }

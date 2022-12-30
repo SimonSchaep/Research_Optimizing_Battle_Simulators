@@ -1,9 +1,9 @@
 #pragma once
 #include "Health.h"
 #include "MeleeAttack.h"
+#include "QuadTreeNode.h"
 
 class AgentBasePooler;
-class QuadTreeNode;
 
 class AgentBase
 {
@@ -23,6 +23,7 @@ public:
 	bool GetIsEnabled() { return m_IsEnabled; };
 
 	const Elite::Vector2& GetPosition() { return m_Position; };
+	const Elite::Vector2& GetNodePosition() { return (m_pQuadTreeNode) ? m_pQuadTreeNode->GetMinBounds() : m_Position; };
 	int GetTeamId() { return m_TeamId; };
 
 	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell);

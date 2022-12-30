@@ -13,6 +13,7 @@ public:
 	QuadTreeNode& operator=(QuadTreeNode&& other) = delete;
 
 	void Render()const;
+	void CheckSubDivide();
 
 	const Elite::Vector2& GetMinBounds() { return m_MinBounds; };
 	const Elite::Vector2& GetMaxBounds() { return m_MaxBounds; };

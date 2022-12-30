@@ -40,6 +40,36 @@ void QuadTreeNode::Render() const
 	DEBUGRENDERER2D->DrawString({ points[0].x + (m_MaxBounds.x - m_MinBounds.x) / 2, points[0].y + (m_MaxBounds.y - m_MinBounds.y) / 2 }, std::to_string(m_AgentCount).c_str());
 }
 
+void QuadTreeNode::CheckSubDivide()
+{
+	if (m_ChildNodes[0]) //if we have children
+	{
+		for (QuadTreeNode* pNode : m_ChildNodes)
+		{
+			pNode->CheckSubDivide();
+		}
+		return;
+	}
+
+	//subdivide node
+	if (m_AgentCount >= m_MaxAgentCount) //dont divide if size of node is too small
+	{
+		//create child nodes
+		const float halfCellWidth{ (m_MaxBounds.x - m_MinBounds.x) / 2 };
+		const float halfCellHeight{ (m_MaxBounds.y - m_MinBounds.y) / 2 };
+		m_ChildNodes[0] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y},{m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight}, false };
+		m_ChildNodes[1] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y},{m_MaxBounds.x, m_MinBounds.y + halfCellHeight}, false };
+		m_ChildNodes[2] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight},{m_MaxBounds.x, m_MaxBounds.y}, false };
+		m_ChildNodes[3] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y + halfCellHeight},{m_MinBounds.x + halfCellWidth, m_MaxBounds.y}, false };
+
+		//add agents to children
+		for (int i{}; i < m_AgentCount; ++i)
+		{
+			AddAgentToChild(m_Agents[i]);
+		}
+	}
+}
+
 void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 {
 	if (m_ChildNodes[0]) //if we have children
@@ -58,12 +88,14 @@ void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 				for (int i{}; i < pNode->GetAgentCount(); ++i)
 				{
 					m_Agents[counter] = pNode->GetAgents()[i];
+					m_Agents[counter]->SetCell(this);
 					++counter;
 				}
 			}
 
 			for (size_t i{}; i < m_ChildNodes.size(); ++i)
 			{
+				delete m_ChildNodes[i];
 				m_ChildNodes[i] = nullptr;
 			}
 		}
@@ -95,34 +127,16 @@ void QuadTreeNode::AddAgent(AgentBase* pAgent)
 	else
 	{
 		m_Agents.push_back(pAgent);
-	}
-	
-	pAgent->SetCell(this);
+	}	
 
 	++m_AgentCount;
 
-	//subdivide node
-	if (m_AgentCount > m_MaxAgentCount) //dont divide if size of node is too small
-	{
-		//create child nodes
-		const float halfCellWidth{ (m_MaxBounds.x - m_MinBounds.x) / 2 };
-		const float halfCellHeight{ (m_MaxBounds.y - m_MinBounds.y) / 2 };
-		m_ChildNodes[0] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y},{m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight}, false };
-		m_ChildNodes[1] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y},{m_MaxBounds.x, m_MinBounds.y + halfCellHeight}, false };
-		m_ChildNodes[2] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight},{m_MaxBounds.x, m_MaxBounds.y}, false };
-		m_ChildNodes[3] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y + halfCellHeight},{m_MinBounds.x + halfCellWidth, m_MaxBounds.y}, false };
-
-		//add agents to children
-		for (int i{}; i < m_AgentCount; ++i)
-		{
-			AddAgentToChild(m_Agents[i]);
-		}
-	}
+	pAgent->SetCell(this);
 }
 
 void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
 {
-	const Elite::Vector2& pos{ pAgent->GetPosition() };
+	const Elite::Vector2& pos{ pAgent->GetPosition() }; //take current position
 	for (QuadTreeNode* pNode : m_ChildNodes)
 	{
 		if (pos.x >= pNode->GetMinBounds().x && pos.x < pNode->GetMaxBounds().x && pos.y >= pNode->GetMinBounds().y && pos.y < pNode->GetMaxBounds().y)
@@ -131,12 +145,13 @@ void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
 			return;
 		}
 	}
-	std::cerr << "agent doesnt fit any nodes\n";
+	std::cerr << "(add) agent doesnt fit any nodes\n";
+
 }
 
 void QuadTreeNode::RemoveAgentFromChild(AgentBase* pAgent)
 {
-	const Elite::Vector2& pos{ pAgent->GetPosition() };
+	const Elite::Vector2& pos{ pAgent->GetNodePosition() }; //take old position
 	for (QuadTreeNode* pNode : m_ChildNodes)
 	{
 		if (pos.x >= pNode->GetMinBounds().x && pos.x < pNode->GetMaxBounds().x && pos.y >= pNode->GetMinBounds().y && pos.y < pNode->GetMaxBounds().y)
@@ -145,5 +160,5 @@ void QuadTreeNode::RemoveAgentFromChild(AgentBase* pAgent)
 			return;
 		}
 	}
-	std::cerr << "agent doesnt fit any nodes\n";
+	std::cerr << "(remove) agent doesnt fit any nodes\n";
 }
