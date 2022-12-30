@@ -69,13 +69,14 @@ void AgentBase::CalculateVelocity()
 
 	for (int i{}; i < m_NeighborCount; ++i)
 	{
-		float modifier{0.5f};
+		float modifier{.5f};
 		if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 4)
 		{
-			modifier = 2;
+			modifier = 2.f;
 		}
-		//make sure velocity can't go infinitely high
-		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), 0.01f));
+		
+		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 	}
 
 	//don't move if it's only a small amount
