@@ -19,14 +19,13 @@ public:
 	void SetCell(Cell* pCell) { m_pCell = pCell; };
 
 	void Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed);
-	
+	void Disable();
 	bool GetIsEnabled() { return m_IsEnabled; };
 
 	const Elite::Vector2& GetPosition() { return m_Position; };
 	int GetTeamId() { return m_TeamId; };
 
-	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell = true);
-	void CheckIfCellChanged(AgentBasePooler* pAgentBasePooler);
+	void Update(float dt, AgentBasePooler* pAgentBasePooler);
 	void Render();
 
 	void Damage(float damageAmount) { m_Health.Damage(damageAmount); };
@@ -54,14 +53,16 @@ private:
 
 	Cell* m_pCell;
 
-	void CalculateVelocity(bool separation);
+	std::vector<AgentBase*> m_Neighbors{};
+
+	int m_NeighborCount{};
+
+	void CalculateVelocity();
 
 	bool Move(float dt);
 
 	void FindTarget(AgentBasePooler* pAgentBasePooler);
 
 	void CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col);
-
-	void Disable();
 };
 

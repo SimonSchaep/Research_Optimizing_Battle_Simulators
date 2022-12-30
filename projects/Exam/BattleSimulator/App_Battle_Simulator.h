@@ -29,7 +29,7 @@ private:
 
 	Elite::Vector2 m_WorldDimensions{ 500,500 };
 
-	bool m_IsPaused{true};
+	bool m_IsPaused{ true };
 
 	float m_CurrentFps{};
 

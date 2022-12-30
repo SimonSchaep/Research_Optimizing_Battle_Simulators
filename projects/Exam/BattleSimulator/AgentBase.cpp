@@ -89,11 +89,34 @@ void AgentBase::CalculateVelocity(bool separation)
 	{
 		m_Velocity = m_pTargetAgent->GetPosition() - m_Position;
 		m_Velocity.Normalize();
-		m_Velocity *= m_Speed;
+	}
+	else
+	{
+		m_Velocity = m_TargetPosition - m_Position;
+		m_Velocity.Normalize();
+	}
+
+	for (int i{}; i < m_NeighborCount; ++i)
+	{
+		float modifier{ 1.f };
+		if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 4)
+		{
+			modifier = 3.f;
+		}
+
+		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
+	}
+
+	//don't move if it's only a small amount
+	//this makes shaking less prevalent
+	const float epsilon{ 0.9f };
+	if (m_Velocity.MagnitudeSquared() <= epsilon)
+	{
+		m_Velocity = { 0,0 };
 		return;
 	}
 
-	m_Velocity = m_TargetPosition - m_Position;
 	m_Velocity.Normalize();
 	m_Velocity *= m_Speed;
 }
@@ -112,18 +135,21 @@ bool AgentBase::Move(float dt)
 void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 {
 	m_pTargetAgent = nullptr;
+	m_NeighborCount = 0;
 
 	int row{};
 	int col{};
 
 	int range{};	
+	const int minRange{ 3 };
+	const int maxRange{ 50 };
 
 	//get current row and col
 	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
 	//check own cell
 	CheckCell(pAgentBasePooler, row, col);
 
-	while (range < 50 && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled()))
+	while (range < maxRange && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || range < minRange))
 	{
 		++range;
 
@@ -141,6 +167,8 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 
 void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
 {
+	const float neighborRadiusSquared{ 40 };
+
 	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
 	Cell* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
 	const std::vector<AgentBase*>& agents = pCell->GetAgents();
@@ -149,6 +177,18 @@ void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
 		if (agents[agentId]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[agentId]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
 		{
 			m_pTargetAgent = agents[agentId];
+		}
+		else if (agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
+		{
+			if (m_Neighbors.size() > m_NeighborCount)
+			{
+				m_Neighbors[m_NeighborCount] = agents[agentId];
+			}
+			else
+			{
+				m_Neighbors.push_back(agents[agentId]);
+			}
+			++m_NeighborCount;
 		}
 	}
 }
