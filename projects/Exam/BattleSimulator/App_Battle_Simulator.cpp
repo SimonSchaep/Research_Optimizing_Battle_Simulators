@@ -95,6 +95,11 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 		m_IsPaused = false;
 	}
 
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Checkbox("MultiThreading", &m_pAgentBasePooler->GetUsingMultiThreading());
+
 	//End
 	ImGui::PopAllowKeyboardFocus();
 	ImGui::End();

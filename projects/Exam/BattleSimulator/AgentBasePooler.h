@@ -15,6 +15,8 @@ public:
 	void Update(float dt);
 	void Render();
 
+	bool& GetUsingMultiThreading() { return m_UsingMultithreading; };
+
 	const std::vector<AgentBase*>& GetEnabledAgents() { return m_EnabledAgentBasePointers; };
 	int GetEnabledAgentsCount() { return m_EnabledAgentsCount; };
 
@@ -28,6 +30,8 @@ private:
 
 	int m_DisabledAgentsCount{};
 	int m_EnabledAgentsCount{};
+
+	bool m_UsingMultithreading{};
 
 	void AddToDisabledAgents(AgentBase* pAgent);
 };
