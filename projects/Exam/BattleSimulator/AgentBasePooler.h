@@ -21,7 +21,6 @@ public:
 	void GetEnabledAgentCountsByTeamId(int& id0, int& id1, int& id2, int& id3);
 
 	AgentBase* SpawnNewAgent(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed);
-	
 
 private:
 	std::vector<AgentBase*> m_DisabledAgentBasePointers{};
