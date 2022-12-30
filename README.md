@@ -108,7 +108,12 @@ can decrease neighbor radius to decrease spacing between agents
 
 
 
-
+FUTURE WORK:
+Implement better crowd simulation
+Use GPU
+Implement efficient collision system
+Convert to 3D
+Add animation
 
 
 
