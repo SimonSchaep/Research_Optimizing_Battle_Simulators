@@ -96,28 +96,32 @@ void AgentBase::CalculateVelocity(bool separation)
 		m_Velocity.Normalize();
 	}
 
-	for (int i{}; i < m_NeighborCount; ++i)
+	if (separation)
 	{
-		float modifier{ 1.f };
-		if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 4)
+		for (int i{}; i < m_NeighborCount; ++i)
 		{
-			modifier = 3.f;
+			float modifier{ 1.f };
+			if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 4)
+			{
+				modifier = 3.f;
+			}
+
+			const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+			m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 		}
 
-		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
-		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
-	}
+		//don't move if it's only a small amount
+		//this makes shaking less prevalent
+		const float epsilon{ 0.9f };
+		if (m_Velocity.MagnitudeSquared() <= epsilon)
+		{
+			m_Velocity = { 0,0 };
+			return;
+		}
 
-	//don't move if it's only a small amount
-	//this makes shaking less prevalent
-	const float epsilon{ 0.9f };
-	if (m_Velocity.MagnitudeSquared() <= epsilon)
-	{
-		m_Velocity = { 0,0 };
-		return;
+		m_Velocity.Normalize();
 	}
-
-	m_Velocity.Normalize();
+	
 	m_Velocity *= m_Speed;
 }
 
