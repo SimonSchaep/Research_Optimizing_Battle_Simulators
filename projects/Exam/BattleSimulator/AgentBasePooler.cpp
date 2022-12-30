@@ -2,8 +2,7 @@
 #include "stdafx.h"
 
 #include "AgentBasePooler.h"
-#include "Tree.h"
-#include "Node.h"
+#include "QuadTreeNode.h"
 #include <ppl.h>
 
 AgentBasePooler::AgentBasePooler(int size)
@@ -19,7 +18,7 @@ AgentBasePooler::AgentBasePooler(int size)
 	m_DisabledAgentsCount = size;
 
 
-	m_pGrid = new Tree{ 100, 100, 5 };
+	m_pRoot = new QuadTreeNode{ {0,0}, {500,500}, true };
 }
 
 AgentBasePooler::~AgentBasePooler()
@@ -35,7 +34,7 @@ AgentBasePooler::~AgentBasePooler()
 		SAFE_DELETE(pAgent);
 	}
 
-	SAFE_DELETE(m_pGrid);
+	SAFE_DELETE(m_pRoot);
 }
 
 void AgentBasePooler::Update(float dt)
@@ -57,17 +56,7 @@ void AgentBasePooler::Update(float dt)
 				}
 			});
 
-		for (int i{}; i < m_EnabledAgentsCount; ++i)
-		{
-			if (m_EnabledAgentBasePointers[i]->GetIsEnabled())
-			{
-				m_EnabledAgentBasePointers[i]->CheckIfCellChanged(this);
-			}			
-		}
-
-		//since we are using multiple threads, the vector won't be sorted
-		//but we need it to be sorted for the disabling to work
-		std::sort(toDisableIds.begin(), toDisableIds.end());
+		
 	}
 	else
 	{
@@ -79,10 +68,22 @@ void AgentBasePooler::Update(float dt)
 			}
 			else
 			{
-				m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation, true);
+				m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation, false);
 			}
 		}
 	}
+
+	for (int i{}; i < m_EnabledAgentsCount; ++i)
+	{
+		if (m_EnabledAgentBasePointers[i]->GetIsEnabled())
+		{
+			m_EnabledAgentBasePointers[i]->CheckIfCellChanged(this);
+		}
+	}
+
+	//since we are using multiple threads, the vector won't be sorted
+	//but we need it to be sorted for the disabling to work
+	std::sort(toDisableIds.begin(), toDisableIds.end());
 
 	//start from the back because we swap the agent to be removed with the last agent in the vector
 	//if the last one is also in the to remove list, it would no longer be removed if we started from the front
@@ -113,7 +114,7 @@ void AgentBasePooler::Render(bool renderGrid)
 
 	if (renderGrid)
 	{
-		m_pGrid->Render();
+		m_pRoot->Render();
 	}	
 }
 
@@ -154,7 +155,7 @@ AgentBase* AgentBasePooler::SpawnNewAgent(int teamId, const Elite::Vector2& posi
 
 	pNewAgent->Enable(teamId, position, radius, color, healthAmount, damage, attackSpeed, attackRange, speed);
 
-	m_pGrid->GetCells()[m_pGrid->GetCellId(position)]->AddAgent(pNewAgent);
+	m_pRoot->AddAgent(pNewAgent);
 
 	return pNewAgent;
 }

@@ -3,8 +3,7 @@
 
 #include "AgentBase.h"
 #include "AgentBasePooler.h"
-#include "Node.h"
-#include "Tree.h"
+#include "QuadTreeNode.h"
 #include <ppl.h>
 
 AgentBase::AgentBase()
@@ -32,9 +31,9 @@ void AgentBase::Disable()
 {
 	m_IsEnabled = false;
 
-	assert(m_pCell);
-	m_pCell->RemoveAgent(this);
-	m_pCell = nullptr;
+	assert(m_pQuadTreeNode);
+	m_pQuadTreeNode->RemoveAgent(this);
+	m_pQuadTreeNode = nullptr;
 }
 
 void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell)
@@ -55,11 +54,18 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 		m_MeleeAttack.TryAttack(m_pTargetAgent);
 	}
 	
-	//check if we need to update our cell after we moved
-	else if(checkCell && pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)] != m_pCell)
+	//check if we need to update our node after we moved
+	else if(checkCell && (
+		m_Position.x < m_pQuadTreeNode->GetMinBounds().x || m_Position.x >= m_pQuadTreeNode->GetMaxBounds().x ||
+		m_Position.y < m_pQuadTreeNode->GetMinBounds().y || m_Position.y >= m_pQuadTreeNode->GetMaxBounds().y
+		)) //check if left bounds of current node
 	{
-		m_pCell->RemoveAgent(this);
-		pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)]->AddAgent(this);		
+		//first set position to somewhere in old node, so it can be properly processed in the tree
+		Elite::Vector2 position{ m_Position };
+		m_Position = m_pQuadTreeNode->GetMinBounds();
+		pAgentBasePooler->GetQuadTreeRoot()->RemoveAgent(this);
+		m_Position = position;
+		pAgentBasePooler->GetQuadTreeRoot()->AddAgent(this);		
 	}
 }
 
@@ -71,10 +77,17 @@ void AgentBase::CheckIfCellChanged(AgentBasePooler* pAgentBasePooler)
 		return;
 	}
 
-	if (pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)] != m_pCell)
+	if (
+		m_Position.x < m_pQuadTreeNode->GetMinBounds().x || m_Position.x >= m_pQuadTreeNode->GetMaxBounds().x ||
+		m_Position.y < m_pQuadTreeNode->GetMinBounds().y || m_Position.y >= m_pQuadTreeNode->GetMaxBounds().y
+		) //check if left bounds of current node
 	{
-		m_pCell->RemoveAgent(this);
-		pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)]->AddAgent(this);
+		//first set position to somewhere in old node, so it can be properly processed in the tree
+		Elite::Vector2 position{ m_Position };
+		m_Position = m_pQuadTreeNode->GetMinBounds();
+		pAgentBasePooler->GetQuadTreeRoot()->RemoveAgent(this);
+		m_Position = position;
+		pAgentBasePooler->GetQuadTreeRoot()->AddAgent(this);
 	}
 }
 
@@ -148,33 +161,33 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 	const int minRange{ 3 };
 	const int maxRange{ 50 };
 
-	//get current row and col
-	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
-	//check own cell
-	CheckCell(pAgentBasePooler, row, col);
+	////get current row and col
+	//pAgentBasePooler->GetQuadTreeRoot()->GetRowCol(pAgentBasePooler->GetQuadTreeRoot()->GetCellId(m_Position), row, col);
+	////check own cell
+	//CheckCell(pAgentBasePooler, row, col);
 
-	while (range < maxRange && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || range < minRange))
-	{
-		++range;
+	//while (range < maxRange && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || range < minRange))
+	//{
+	//	++range;
 
-		for (int r{-range}; r <= range; ++r)
-		{
-			CheckCell(pAgentBasePooler, row + r, col + (range - abs(r)));
-			if (abs(r) != range) //if not at very bottom or very top
-			{
-				//check second cell opposite to previous one checked
-				CheckCell(pAgentBasePooler, row + r, col - (range - abs(r)));
-			}			
-		}
-	}
+	//	for (int r{-range}; r <= range; ++r)
+	//	{
+	//		CheckCell(pAgentBasePooler, row + r, col + (range - abs(r)));
+	//		if (abs(r) != range) //if not at very bottom or very top
+	//		{
+	//			//check second cell opposite to previous one checked
+	//			CheckCell(pAgentBasePooler, row + r, col - (range - abs(r)));
+	//		}			
+	//	}
+	//}
 }
 
 void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
 {
-	const float neighborRadiusSquared{ 40 };
+	/*const float neighborRadiusSquared{ 40 };
 
-	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
-	Node* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
+	int cellId{ pAgentBasePooler->GetQuadTreeRoot()->GetCellId(row, col) };
+	QuadTreeNode* pCell{ pAgentBasePooler->GetQuadTreeRoot()->GetCells()[cellId] };
 	const std::vector<AgentBase*>& agents = pCell->GetAgents();
 	for (int agentId{}; agentId < pCell->GetAgentCount(); ++agentId)
 	{
@@ -194,5 +207,5 @@ void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
 			}
 			++m_NeighborCount;
 		}
-	}
+	}*/
 }
