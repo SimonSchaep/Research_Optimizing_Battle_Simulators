@@ -98,6 +98,13 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
+
+	ImGui::Checkbox(" Separation", &m_pAgentBasePooler->GetUsingSeparation());
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
 	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
 
 	//End

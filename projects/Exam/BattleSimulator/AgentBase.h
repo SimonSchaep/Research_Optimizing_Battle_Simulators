@@ -22,7 +22,7 @@ public:
 	const Elite::Vector2& GetPosition() { return m_Position; };
 	int GetTeamId() { return m_TeamId; };
 
-	void Update(float dt, AgentBasePooler* pAgentBasePooler);
+	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation);
 	void Render();
 
 	void Damage(float damageAmount) { m_Health.Damage(damageAmount); };
@@ -52,7 +52,7 @@ private:
 	int m_NeighborCount{};
 
 
-	void CalculateVelocity();
+	void CalculateVelocity(bool separation);
 
 	bool Move(float dt);
 

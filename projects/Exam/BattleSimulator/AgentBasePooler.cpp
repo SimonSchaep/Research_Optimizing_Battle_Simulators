@@ -46,7 +46,7 @@ void AgentBasePooler::Update(float dt)
 				}
 				else
 				{
-					m_EnabledAgentBasePointers[i]->Update(dt, this);
+					m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation);
 				}
 			});
 
@@ -64,7 +64,7 @@ void AgentBasePooler::Update(float dt)
 			}
 			else
 			{
-				m_EnabledAgentBasePointers[i]->Update(dt, this);
+				m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation);
 			}
 		}
 	}
@@ -73,6 +73,13 @@ void AgentBasePooler::Update(float dt)
 	//if the last one is also in the to remove list, it would no longer be removed if we started from the front
 	for (int i{ int(toDisableIds.size()) - 1}; i >= 0; --i)
 	{
+#ifdef DEBUG
+		if (toDisableIds[i] < 0) //is sometimes negative when using multithreading in debug, no idea why
+		{
+			continue;
+		}
+#endif // DEBUG
+
 		// add to disabled agents
 		m_DisabledAgentBasePointers[m_DisabledAgentsCount] = m_EnabledAgentBasePointers[toDisableIds[i]];
 		++m_DisabledAgentsCount;
