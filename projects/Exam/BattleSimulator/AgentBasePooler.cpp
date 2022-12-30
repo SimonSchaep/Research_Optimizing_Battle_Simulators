@@ -4,6 +4,7 @@
 #include "AgentBasePooler.h"
 #include "Grid.h"
 #include "Cell.h"
+#include <ppl.h>
 
 AgentBasePooler::AgentBasePooler(int size)
 {
@@ -39,21 +40,59 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
-	std::vector<int> toDisableIds{};
-	for (int i{}; i < m_EnabledAgentsCount; ++i)
+	std::vector<int> toDisableIds;
+	toDisableIds.reserve(m_EnabledAgentsCount);
+
+	if (m_UsingMultithreading)
 	{
-		if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+		concurrency::parallel_for(0, m_EnabledAgentsCount, [this, dt, &toDisableIds](int i)
+			{
+				if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+				{
+					toDisableIds.push_back(i);
+				}
+				else
+				{
+					m_EnabledAgentBasePointers[i]->Update(dt, this, false);
+				}
+			});
+
+		for (int i{}; i < m_EnabledAgentsCount; ++i)
 		{
-			toDisableIds.push_back(i);
-			continue;
+			if (m_EnabledAgentBasePointers[i]->GetIsEnabled())
+			{
+				m_EnabledAgentBasePointers[i]->CheckIfCellChanged(this);
+			}			
 		}
-		m_EnabledAgentBasePointers[i]->Update(dt, this);
+
+		//since we are using multiple threads, the vector won't be sorted
+		//but we need it to be sorted for the disabling to work
+		std::sort(toDisableIds.begin(), toDisableIds.end());
+	}
+	else
+	{
+		for (int i{}; i < m_EnabledAgentsCount; ++i)
+		{
+			if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+			{
+				toDisableIds.push_back(i);
+			}
+			else
+			{
+				m_EnabledAgentBasePointers[i]->Update(dt, this, true);
+			}
+		}
 	}
 
 	//start from the back because we swap the agent to be removed with the last agent in the vector
 	//if the last one is also in the to remove list, it would no longer be removed if we started from the front
 	for (int i{ int(toDisableIds.size()) - 1}; i >= 0; --i)
 	{
+		if (toDisableIds[i] < 0)//has contained a negative value once in debug mode, no idea why
+		{
+			continue;
+		}
+
 		// add to disabled agents
 		m_DisabledAgentBasePointers[m_DisabledAgentsCount] = m_EnabledAgentBasePointers[toDisableIds[i]];
 		++m_DisabledAgentsCount;

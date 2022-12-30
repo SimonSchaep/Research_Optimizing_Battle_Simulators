@@ -101,7 +101,13 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Spacing();
 	ImGui::Spacing();
 
-	ImGui::Checkbox("Render Grid", &m_RenderGrid);
+	ImGui::Checkbox(" Render Grid", &m_RenderGrid);
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
 
 	//End
 	ImGui::PopAllowKeyboardFocus();

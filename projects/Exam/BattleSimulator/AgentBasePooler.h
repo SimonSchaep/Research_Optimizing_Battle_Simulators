@@ -19,6 +19,8 @@ public:
 
 	Grid* GetGrid() { return m_pGrid; };
 
+	bool& GetUsingMultiThreading() { return m_UsingMultithreading; };
+
 	const std::vector<AgentBase*>& GetEnabledAgents() { return m_EnabledAgentBasePointers; };
 	int GetEnabledAgentsCount() { return m_EnabledAgentsCount; };
 
@@ -35,6 +37,8 @@ private:
 	int m_EnabledAgentsCount{};
 
 	Grid* m_pGrid{};
+
+	bool m_UsingMultithreading{false};
 
 	void AddToDisabledAgents(AgentBase* pAgent);
 };

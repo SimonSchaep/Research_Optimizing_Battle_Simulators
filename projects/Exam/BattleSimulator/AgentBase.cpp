@@ -5,6 +5,7 @@
 #include "AgentBasePooler.h"
 #include "Cell.h"
 #include "Grid.h"
+#include <ppl.h>
 
 AgentBase::AgentBase()
 {
@@ -36,9 +37,9 @@ void AgentBase::Disable()
 	m_pCell = nullptr;
 }
 
-void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler)
+void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool checkCell)
 {
-	if (m_Health.IsDead())
+	if (checkCell && m_Health.IsDead()) //disable also checks cell, so for multithreading, this check needs to happen in separate function
 	{
 		Disable();
 		return;
@@ -53,11 +54,27 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler)
 	{
 		m_MeleeAttack.TryAttack(m_pTargetAgent);
 	}
+	
 	//check if we need to update our cell after we moved
-	else if(pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)] != m_pCell)
+	else if(checkCell && pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)] != m_pCell)
 	{
 		m_pCell->RemoveAgent(this);
 		pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)]->AddAgent(this);		
+	}
+}
+
+void AgentBase::CheckIfCellChanged(AgentBasePooler* pAgentBasePooler)
+{
+	if (m_Health.IsDead())
+	{
+		Disable();
+		return;
+	}
+
+	if (pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)] != m_pCell)
+	{
+		m_pCell->RemoveAgent(this);
+		pAgentBasePooler->GetGrid()->GetCells()[pAgentBasePooler->GetGrid()->GetCellId(m_Position)]->AddAgent(this);
 	}
 }
 
