@@ -8,6 +8,8 @@
 
 AgentBasePooler::AgentBasePooler(int size)
 {
+	m_TeamAgentsCount.resize(4);
+
 	m_DisabledAgentBasePointers.resize(size);
 	m_EnabledAgentBasePointers.resize(size);
 
@@ -40,6 +42,11 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
+	m_TeamAgentsCount[0] = 0;
+	m_TeamAgentsCount[1] = 0;
+	m_TeamAgentsCount[2] = 0;
+	m_TeamAgentsCount[3] = 0;
+
 	std::vector<int> toDisableIds;
 	toDisableIds.reserve(m_EnabledAgentsCount);
 
@@ -54,6 +61,7 @@ void AgentBasePooler::Update(float dt)
 				else
 				{
 					m_EnabledAgentBasePointers[i]->Update(dt, this, m_UsingSeparation, false);
+					++m_TeamAgentsCount[m_EnabledAgentBasePointers[i]->GetTeamId()];
 				}
 			});
 
@@ -88,13 +96,10 @@ void AgentBasePooler::Update(float dt)
 	//if the last one is also in the to remove list, it would no longer be removed if we started from the front
 	for (int i{ int(toDisableIds.size()) - 1}; i >= 0; --i)
 	{
-#ifdef DEBUG
-		if (toDisableIds[i] < 0)//has contained a negative value once in debug mode, no idea why
+		if (toDisableIds[i] < 0 || toDisableIds[i] >= m_EnabledAgentsCount) //sometimes contains very high or very low values when using multithreading, no idea why
 		{
 			continue;
 		}
-#endif // DEBUG		
-
 		// add to disabled agents
 		m_DisabledAgentBasePointers[m_DisabledAgentsCount] = m_EnabledAgentBasePointers[toDisableIds[i]];
 		++m_DisabledAgentsCount;
@@ -104,6 +109,8 @@ void AgentBasePooler::Update(float dt)
 		m_EnabledAgentBasePointers[toDisableIds[i]] = m_EnabledAgentBasePointers[m_EnabledAgentsCount];
 		m_EnabledAgentBasePointers[m_EnabledAgentsCount] = nullptr;
 	}
+
+	m_pGrid->Update(dt, this);
 }
 
 void AgentBasePooler::Render(bool renderGrid)

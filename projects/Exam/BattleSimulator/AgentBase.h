@@ -66,6 +66,6 @@ private:
 
 	void FindTarget(AgentBasePooler* pAgentBasePooler);
 
-	void CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col);
+	void CheckCellForNeighbors(AgentBasePooler* pAgentBasePooler, int row, int col);
 };
 

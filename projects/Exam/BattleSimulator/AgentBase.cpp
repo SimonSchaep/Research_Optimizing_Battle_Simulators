@@ -138,51 +138,63 @@ bool AgentBase::Move(float dt)
 
 void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 {
-	m_pTargetAgent = nullptr;
+	if (!m_pCell->GetClosestCell(m_TeamId))
+	{
+		return;
+	}
+
+
 	m_NeighborCount = 0;
 
+	//get closest cell for this team
+	const std::vector<AgentBase*>& agents{ m_pCell->GetClosestCell(m_TeamId)->GetAgents() };
+
+	for (int i{}; i < m_pCell->GetClosestCell(m_TeamId)->GetAgentCount(); ++i)
+	{
+		if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
+		{
+			m_pTargetAgent = agents[i];
+		}
+	}
+
+	//find neighbors
 	int row{};
 	int col{};
 
-	int range{};	
-	const int minRange{ 3 };
-	const int maxRange{ 50 };
+	int range{};
+	const int maxRange{ 2 };
 
 	//get current row and col
 	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
 	//check own cell
-	CheckCell(pAgentBasePooler, row, col);
+	CheckCellForNeighbors(pAgentBasePooler, row, col);
 
-	while (range < maxRange && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || range < minRange))
+	while (range < maxRange)
 	{
 		++range;
 
-		for (int r{-range}; r <= range; ++r)
+		for (int r{ -range }; r <= range; ++r)
 		{
-			CheckCell(pAgentBasePooler, row + r, col + (range - abs(r)));
+			CheckCellForNeighbors(pAgentBasePooler, row + r, col + (range - abs(r)));
 			if (abs(r) != range) //if not at very bottom or very top
 			{
 				//check second cell opposite to previous one checked
-				CheckCell(pAgentBasePooler, row + r, col - (range - abs(r)));
-			}			
+				CheckCellForNeighbors(pAgentBasePooler, row + r, col - (range - abs(r)));
+			}
 		}
 	}
 }
 
-void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
+void AgentBase::CheckCellForNeighbors(AgentBasePooler* pAgentBasePooler, int row, int col)
 {
-	const float neighborRadiusSquared{ 40 };
+	const float neighborRadiusSquared{ 10 };
 
 	int cellId{ pAgentBasePooler->GetGrid()->GetCellId(row, col) };
 	Cell* pCell{ pAgentBasePooler->GetGrid()->GetCells()[cellId] };
 	const std::vector<AgentBase*>& agents = pCell->GetAgents();
 	for (int agentId{}; agentId < pCell->GetAgentCount(); ++agentId)
 	{
-		if (agents[agentId]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[agentId]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
-		{
-			m_pTargetAgent = agents[agentId];
-		}
-		else if (agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
+		if (agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
 		{
 			if (m_Neighbors.size() > m_NeighborCount)
 			{

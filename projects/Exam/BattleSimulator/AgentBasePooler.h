@@ -39,6 +39,8 @@ private:
 
 	Grid* m_pGrid{};
 
+	std::vector<int> m_TeamAgentsCount{};
+
 	bool m_UsingMultithreading{false};
 	bool m_UsingSeparation{false};
 
