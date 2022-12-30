@@ -2,6 +2,7 @@
 #include "stdafx.h"
 
 #include "AgentBasePooler.h"
+#include <ppl.h>
 
 AgentBasePooler::AgentBasePooler(int size)
 {
@@ -32,15 +33,40 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
-	std::vector<int> toDisableIds{};
-	for (int i{}; i < m_EnabledAgentsCount; ++i)
+	std::vector<int> toDisableIds;
+	toDisableIds.reserve(m_EnabledAgentsCount);
+
+	if (m_UsingMultithreading)
 	{
-		if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+		concurrency::parallel_for(0, m_EnabledAgentsCount, [this, dt, &toDisableIds](int i)
+			{
+				if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+				{
+					toDisableIds.push_back(i); //has pushed back a negative value once in debug mode, no idea why
+				}
+				else
+				{
+					m_EnabledAgentBasePointers[i]->Update(dt, this);
+				}
+			});
+
+		//since we are using multiple threads, the vector won't be sorted
+		//but we need it to be sorted for the disabling to work
+		std::sort(toDisableIds.begin(), toDisableIds.end());
+	}
+	else
+	{
+		for (int i{}; i < m_EnabledAgentsCount; ++i)
 		{
-			toDisableIds.push_back(i);
-			continue;
+			if (!m_EnabledAgentBasePointers[i]->GetIsEnabled())
+			{
+				toDisableIds.push_back(i);
+			}
+			else
+			{
+				m_EnabledAgentBasePointers[i]->Update(dt, this);
+			}
 		}
-		m_EnabledAgentBasePointers[i]->Update(dt, this);
 	}
 
 	//start from the back because we swap the agent to be removed with the last agent in the vector
