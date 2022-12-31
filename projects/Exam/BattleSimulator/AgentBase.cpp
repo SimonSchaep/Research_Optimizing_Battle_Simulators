@@ -45,7 +45,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 		return;
 	}
 
-	FindTarget(pAgentBasePooler);
+	FindTarget(pAgentBasePooler, separation);
 
 	m_MeleeAttack.Update(dt);
 
@@ -136,7 +136,7 @@ bool AgentBase::Move(float dt)
 	return true;
 }
 
-void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
+void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors)
 {
 	m_pTargetAgent = nullptr;
 	m_NeighborCount = 0;
@@ -151,7 +151,7 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 	//get current row and col
 	pAgentBasePooler->GetGrid()->GetRowCol(pAgentBasePooler->GetGrid()->GetCellId(m_Position), row, col);
 	//check own cell
-	CheckCell(pAgentBasePooler, row, col);
+	CheckCell(pAgentBasePooler, row, col, findNeighbors);
 
 	while (range < maxRange && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || range < minRange))
 	{
@@ -159,17 +159,17 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 
 		for (int r{-range}; r <= range; ++r)
 		{
-			CheckCell(pAgentBasePooler, row + r, col + (range - abs(r)));
+			CheckCell(pAgentBasePooler, row + r, col + (range - abs(r)), findNeighbors);
 			if (abs(r) != range) //if not at very bottom or very top
 			{
 				//check second cell opposite to previous one checked
-				CheckCell(pAgentBasePooler, row + r, col - (range - abs(r)));
+				CheckCell(pAgentBasePooler, row + r, col - (range - abs(r)), findNeighbors);
 			}			
 		}
 	}
 }
 
-void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
+void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col, bool findNeighbors)
 {
 	const float neighborRadiusSquared{ 40 };
 
@@ -182,7 +182,7 @@ void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
 		{
 			m_pTargetAgent = agents[agentId];
 		}
-		else if (agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
+		else if (findNeighbors && agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
 		{
 			if (m_Neighbors.size() > m_NeighborCount)
 			{
