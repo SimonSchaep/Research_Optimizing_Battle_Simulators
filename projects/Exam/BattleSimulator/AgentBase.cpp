@@ -68,7 +68,7 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 	}
 
 
-
+	//separation
 	for (int i{}; i < m_NeighborCount; ++i)
 	{
 		float modifier{ .2f };
@@ -80,9 +80,8 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 
 
 
-	Elite::Vector2 originalVel{ m_Velocity };
-
-	Elite::Vector2 sep{};
+	//collision
+	Elite::Vector2 collisionForce{};
 
 	if (separation)
 	{
@@ -90,17 +89,17 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		{
 			if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position + m_Velocity * m_Speed * dt) < 4) //if our new position would collide
 			{
-				sep += ((m_Position + m_Velocity * m_Speed * dt) - m_Neighbors[i]->GetPosition()).GetNormalized();
+				collisionForce += ((m_Position + m_Velocity * m_Speed * dt) - m_Neighbors[i]->GetPosition()).GetNormalized();
 			}
 		}
 	}
 
-	if (sep != Elite::Vector2{0,0})
+	if (collisionForce != Elite::Vector2{0,0})
 	{
 		m_Velocity *= 0.5f;
 	}
 
-	m_Velocity += sep.GetNormalized();
+	m_Velocity += collisionForce.GetNormalized();
 
 	float epsilon{ 0.6f };
 	if (m_Velocity.Magnitude() < epsilon)
@@ -111,8 +110,6 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 
 	//m_Velocity.Normalize();
 	m_Velocity *= m_Speed;
-	
-	
 }
 
 bool AgentBase::Move(float dt)
