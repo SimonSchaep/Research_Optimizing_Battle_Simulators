@@ -47,7 +47,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 
 	m_MeleeAttack.Update(dt);
 
-	CalculateVelocity(separation);
+	CalculateVelocity(dt, separation);
 	if (!Move(dt) && m_pTargetAgent)
 	{
 		m_MeleeAttack.TryAttack(m_pTargetAgent);
@@ -87,7 +87,7 @@ void AgentBase::Render()
 	DEBUGRENDERER2D->DrawSolidCircle(m_Position, m_Radius, { 0,0 }, m_Color);
 }
 
-void AgentBase::CalculateVelocity(bool separation)
+void AgentBase::CalculateVelocity(float dt, bool separation)
 {
 	if (m_pTargetAgent)
 	{
@@ -100,32 +100,49 @@ void AgentBase::CalculateVelocity(bool separation)
 		m_Velocity.Normalize();
 	}
 
+
+
+	//separation
+	for (int i{}; i < m_NeighborCount; ++i)
+	{
+		float modifier{ .2f };
+
+		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
+	}
+
+
+
+
+	//collision
+	Elite::Vector2 collisionForce{};
+
 	if (separation)
 	{
 		for (int i{}; i < m_NeighborCount; ++i)
 		{
-			float modifier{ 1.f };
-			if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position) < 4)
+			if (m_Neighbors[i]->GetPosition().DistanceSquared(m_Position + m_Velocity * m_Speed * dt) < 4) //if our new position would collide
 			{
-				modifier = 3.f;
+				collisionForce += ((m_Position + m_Velocity * m_Speed * dt) - m_Neighbors[i]->GetPosition()).GetNormalized();
 			}
-
-			const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
-			m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 		}
-
-		//don't move if it's only a small amount
-		//this makes shaking less prevalent
-		const float epsilon{ 0.9f };
-		if (m_Velocity.MagnitudeSquared() <= epsilon)
-		{
-			m_Velocity = { 0,0 };
-			return;
-		}
-
-		m_Velocity.Normalize();
 	}
-	
+
+	if (collisionForce != Elite::Vector2{ 0,0 })
+	{
+		m_Velocity *= 0.5f;
+	}
+
+	m_Velocity += collisionForce.GetNormalized();
+
+	float epsilon{ 0.6f };
+	if (m_Velocity.Magnitude() < epsilon)
+	{
+		m_Velocity = { 0,0 };
+		return;
+	}
+
+	//m_Velocity.Normalize();
 	m_Velocity *= m_Speed;
 }
 
