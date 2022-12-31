@@ -23,6 +23,8 @@ public:
 	const std::vector<AgentBase*>& GetAgents() { return m_Agents; };
 	int GetAgentCount() { return m_AgentCount; };
 
+	int GetTeamAgentCount(int teamId) { return m_TeamAgentCounts[teamId]; };
+
 	void RemoveAgent(AgentBase* pAgent); //only call this on the root!!!
 	void AddAgent(AgentBase* pAgent);
 
@@ -32,7 +34,9 @@ private:
 	std::vector<AgentBase*> m_Agents{};
 	int m_AgentCount{};
 
-	const int m_MaxAgentCount{100};
+	std::vector<int> m_TeamAgentCounts{};
+
+	const int m_MaxAgentCount{50};
 
 	int m_Depth{};
 
