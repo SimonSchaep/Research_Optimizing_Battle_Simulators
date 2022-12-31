@@ -63,6 +63,26 @@ measure multiple times
 post measurements in different situations
 explain smth about measurements
 
+pause is done by setting deltatime to 0, this way framerate will be (almost) identical in paused and unpaused state
+this helps with measuring
+
+
+
+
+
+MULTITHREADING:
+would be better on gpu
+but cpu is quicker to implement
+quite easy to multithread our most costly processes since already in for loop
+use parallel for instead
+only issue is that todelete is no longer sorted
+quickly sort using algorithm 
+tested sort, qsort and stable sort. All three gave almost the exact same fps(5-6) when benchmarking with 5000 agents per team. They probably have a very small difference but not enough to make an impact in our case
+
+multithreading gives a very high performance boost
+
+
+
 
 
 
@@ -76,10 +96,21 @@ https://gameprogrammingpatterns.com/spatial-partition.html
 explain own implementation
 
 explain quad trees
+http://homepage.divms.uiowa.edu/~kvaradar/sp2012/daa/ann.pdf
 
 explain own implementation
 
+explain how to get closest agents from closest cells
 
+current is not perfect, but gets most accurate results
+
+gridpartitioning most stable
+target done in cells is much better with large number of agents far away from each other
+
+
+explain issues with multithreading:
+checking if an agent changed cell can't be done async, because agents will be added to cells, which might cause the vector to resize, which will give issues if another thread is accessing that same vector. could be fixed by reserving size, but size could be as much as the total enabled agents, and reserving that much memory in every cell would use way too much memory.
+so we have to do the checking in sync after updating agents
 
 
 
@@ -115,7 +146,6 @@ Implement efficient collision system
 Convert to 3D
 Add animation
 
-add multithreading to partitioning //already done :)
 several issues with that
 adding and removing agents to cells/resizing grid, causes asynchronisation, this could be fixed by buffering the agents, but this will then cause performance to go down again
 
