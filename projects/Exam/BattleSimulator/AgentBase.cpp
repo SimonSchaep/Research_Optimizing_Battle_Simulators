@@ -45,7 +45,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 		return;
 	}
 
-	FindTarget(pAgentBasePooler);
+	FindTarget(pAgentBasePooler, separation);
 
 	m_MeleeAttack.Update(dt);
 
@@ -136,7 +136,7 @@ bool AgentBase::Move(float dt)
 	return true;
 }
 
-void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
+void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors)
 {
 	if (!m_pCell->GetClosestCell(m_TeamId))
 	{
@@ -155,6 +155,11 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 		{
 			m_pTargetAgent = agents[i];
 		}
+	}
+
+	if (!findNeighbors)
+	{
+		return;
 	}
 
 	//find neighbors
