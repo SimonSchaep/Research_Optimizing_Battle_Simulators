@@ -38,7 +38,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 		return;
 	}
 
-	FindTarget(pAgentBasePooler);
+	FindTarget(pAgentBasePooler, separation);
 
 	m_MeleeAttack.Update(dt);
 
@@ -107,10 +107,9 @@ bool AgentBase::Move(float dt)
 	return true;
 }
 
-void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
+void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors)
 {
 	const float neighborRadiusSquared{ 40 };
-
 	m_NeighborCount = 0;
 
 	const std::vector<AgentBase*>& agents{ pAgentBasePooler->GetEnabledAgents() };
@@ -121,7 +120,7 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 		{
 			m_pTargetAgent = agents[i];
 		}
-		else if (agents[i]->GetTeamId() == m_TeamId && agents[i] != this && agents[i]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
+		else if (findNeighbors && agents[i]->GetTeamId() == m_TeamId && agents[i] != this && agents[i]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
 		{
 			if (m_Neighbors.size() > m_NeighborCount)
 			{
