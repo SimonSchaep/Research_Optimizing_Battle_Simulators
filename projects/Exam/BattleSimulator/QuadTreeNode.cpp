@@ -76,6 +76,7 @@ void QuadTreeNode::FindClosestTarget(int ownTeamId, const Elite::Vector2& positi
 {
 	if (m_ChildNodes[0])
 	{
+		//first check the node where our agent is
 		for (QuadTreeNode* pNode : m_ChildNodes)
 		{
 			if (position.x >= pNode->GetMinBounds().x && position.x < pNode->GetMaxBounds().x && position.y >= pNode->GetMinBounds().y && position.y < pNode->GetMaxBounds().y)
@@ -129,6 +130,54 @@ void QuadTreeNode::FindClosestTarget(int ownTeamId, const Elite::Vector2& positi
 		{
 			*pClosestTarget = m_Agents[i];
 			currentClosestDistanceSquared = dist;
+		}
+	}
+}
+
+void QuadTreeNode::GetNearestNeighbors(AgentBase* pAgent, int ownTeamId, const Elite::Vector2& position, std::vector<AgentBase*>& neighbors, int& neighborCount, float neighborRadiusSquared)
+{
+	if (m_ChildNodes[0])
+	{
+		for (QuadTreeNode* pNode : m_ChildNodes)
+		{
+			Elite::Vector2 p0{ pNode->GetMinBounds().x, position.y };
+			Elite::Vector2 p1{ pNode->GetMaxBounds().x, position.y };
+			Elite::Vector2 p2{ position.x, pNode->GetMinBounds().y };
+			Elite::Vector2 p3{ position.x, pNode->GetMaxBounds().y };
+			//only search if it has agents that are of our own team
+			if (pNode->GetTeamAgentCount(ownTeamId) > 0 && (
+				p0.DistanceSquared(position) < neighborRadiusSquared ||
+				p1.DistanceSquared(position) < neighborRadiusSquared ||
+				p2.DistanceSquared(position) < neighborRadiusSquared ||
+				p3.DistanceSquared(position) < neighborRadiusSquared ||
+				(position.x >= pNode->GetMinBounds().x && position.x < pNode->GetMaxBounds().x && position.y >= pNode->GetMinBounds().y && position.y < pNode->GetMaxBounds().y)
+				))
+			{
+				pNode->GetNearestNeighbors(pAgent, ownTeamId, position, neighbors, neighborCount, neighborRadiusSquared);
+			}
+		}
+
+		return;
+	}
+
+	for (int i{}; i < m_AgentCount; ++i)
+	{
+		if (m_Agents[i]->GetTeamId() != ownTeamId || m_Agents[i] == pAgent)
+		{
+			continue;
+		}
+		const float dist{ m_Agents[i]->GetPosition().DistanceSquared(position) };
+		if (dist < neighborRadiusSquared)
+		{
+			if (neighbors.size() > neighborCount)
+			{
+				neighbors[neighborCount] = m_Agents[i];
+			}
+			else
+			{
+				neighbors.push_back(m_Agents[i]);
+			}
+			++neighborCount;
 		}
 	}
 }

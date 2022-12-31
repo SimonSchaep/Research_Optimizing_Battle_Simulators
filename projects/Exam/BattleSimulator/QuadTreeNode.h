@@ -16,6 +16,7 @@ public:
 	void CheckSubDivide();
 
 	void FindClosestTarget(int ownTeamId, const Elite::Vector2& position, AgentBase** pClosestTarget, float& currentClosestDistanceSquared);
+	void GetNearestNeighbors(AgentBase* pAgent, int ownTeamId, const Elite::Vector2& position, std::vector<AgentBase*>& neighbors, int& neighborCount, float neighborRadiusSquared);
 
 	const Elite::Vector2& GetMinBounds() { return m_MinBounds; };
 	const Elite::Vector2& GetMaxBounds() { return m_MaxBounds; };
@@ -36,7 +37,7 @@ private:
 
 	std::vector<int> m_TeamAgentCounts{};
 
-	const int m_MaxAgentCount{50};
+	const int m_MaxAgentCount{20};
 
 	int m_Depth{};
 
