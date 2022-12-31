@@ -20,6 +20,7 @@ public:
 	bool GetIsEnabled() { return m_IsEnabled; };
 
 	const Elite::Vector2& GetPosition() { return m_Position; };
+	const Elite::Vector2& GetVelocity() { return m_Velocity; };
 	int GetTeamId() { return m_TeamId; };
 
 	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation);
@@ -52,7 +53,7 @@ private:
 	int m_NeighborCount{};
 
 
-	void CalculateVelocity(bool separation);
+	void CalculateVelocity(float dt, bool separation);
 
 	bool Move(float dt);
 
