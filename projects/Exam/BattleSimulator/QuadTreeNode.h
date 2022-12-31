@@ -32,7 +32,7 @@ private:
 	std::vector<AgentBase*> m_Agents{};
 	int m_AgentCount{};
 
-	const int m_MaxAgentCount{20};
+	const int m_MaxAgentCount{100};
 
 	int m_Depth{};
 
