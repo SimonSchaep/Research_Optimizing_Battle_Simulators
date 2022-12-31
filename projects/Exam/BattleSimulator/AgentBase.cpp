@@ -26,12 +26,12 @@ void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius,
 	m_Speed = speed;
 }
 
-void AgentBase::Disable()
+void AgentBase::Disable(QuadTreeNode* pQuadTreeRoot)
 {
 	m_IsEnabled = false;
 
 	assert(m_pQuadTreeNode);
-	m_pQuadTreeNode->RemoveAgent(this);
+	pQuadTreeRoot->RemoveAgent(this);
 	m_pQuadTreeNode = nullptr;
 }
 
@@ -39,7 +39,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 {
 	if (checkCell && m_Health.IsDead()) //disable also checks cell, so for multithreading, this check needs to happen in separate function
 	{
-		Disable();
+		Disable(pAgentBasePooler->GetQuadTreeRoot());
 		return;
 	}
 
@@ -68,7 +68,7 @@ void AgentBase::CheckIfCellChanged(AgentBasePooler* pAgentBasePooler)
 {
 	if (m_Health.IsDead())
 	{
-		Disable();
+		Disable(pAgentBasePooler->GetQuadTreeRoot());
 		return;
 	}
 
@@ -145,12 +145,18 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler)
 	m_pTargetAgent = nullptr;
 	m_NeighborCount = 0;
 
-	int row{};
+	float closestDistance{FLT_MAX};
+
+	pAgentBasePooler->GetQuadTreeRoot()->FindClosestTarget(m_TeamId, m_Position, &m_pTargetAgent, closestDistance);
+
+	int i{};
+
+	/*int row{};
 	int col{};
 
 	int range{};	
 	const int minRange{ 3 };
-	const int maxRange{ 50 };
+	const int maxRange{ 50 };*/
 
 	////get current row and col
 	//pAgentBasePooler->GetQuadTreeRoot()->GetRowCol(pAgentBasePooler->GetQuadTreeRoot()->GetCellId(m_Position), row, col);

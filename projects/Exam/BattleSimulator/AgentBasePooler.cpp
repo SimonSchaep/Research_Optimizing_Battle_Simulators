@@ -18,7 +18,7 @@ AgentBasePooler::AgentBasePooler(int size)
 	m_DisabledAgentsCount = size;
 
 
-	m_pRoot = new QuadTreeNode{ {0,0}, {500,500}, true };
+	m_pRoot = new QuadTreeNode{ {0,0}, {500,500}, 0 };
 }
 
 AgentBasePooler::~AgentBasePooler()

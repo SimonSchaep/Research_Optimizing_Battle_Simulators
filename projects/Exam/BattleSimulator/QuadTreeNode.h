@@ -4,7 +4,7 @@ class AgentBase;
 class QuadTreeNode
 {
 public:
-	QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds, bool isRoot);
+	QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds, int depth);
 	~QuadTreeNode();
 
 	QuadTreeNode(const QuadTreeNode& other) = delete;
@@ -15,13 +15,15 @@ public:
 	void Render()const;
 	void CheckSubDivide();
 
+	void FindClosestTarget(int ownTeamId, const Elite::Vector2& position, AgentBase** pClosestTarget, float& currentClosestDistanceSquared);
+
 	const Elite::Vector2& GetMinBounds() { return m_MinBounds; };
 	const Elite::Vector2& GetMaxBounds() { return m_MaxBounds; };
 
 	const std::vector<AgentBase*>& GetAgents() { return m_Agents; };
 	int GetAgentCount() { return m_AgentCount; };
 
-	void RemoveAgent(AgentBase* pAgent); //only remove when certain it is part of this cell, otherwise count will be messed up
+	void RemoveAgent(AgentBase* pAgent); //only call this on the root!!!
 	void AddAgent(AgentBase* pAgent);
 
 	bool HasChildNodes() { return m_ChildNodes[0]; };
@@ -32,7 +34,7 @@ private:
 
 	const int m_MaxAgentCount{20};
 
-	bool m_IsRoot{};
+	int m_Depth{};
 
 	std::vector<QuadTreeNode*> m_ChildNodes{};
 
