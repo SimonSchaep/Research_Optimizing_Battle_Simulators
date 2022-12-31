@@ -58,7 +58,7 @@ private:
 
 	int m_NeighborCount{};
 
-	void CalculateVelocity(bool separation);
+	void CalculateVelocity(float dt, bool separation);
 
 	void Disable();
 
