@@ -29,11 +29,7 @@ void App_Battle_Simulator::Update(float deltaTime)
 
 	UpdateAndRenderUI();
 
-	if (m_IsPaused)
-	{
-		deltaTime = 0;
-	}
-	m_pAgentBasePooler->Update(deltaTime);
+	m_pAgentBasePooler->Update(deltaTime * m_TimeScale);
 }
 
 void App_Battle_Simulator::UpdateAndRenderUI()
@@ -55,57 +51,99 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::PushAllowKeyboardFocus(false);
 
 	//Elements
-	ImGui::Text("STATS");
-	ImGui::Indent();
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Text("Current");
-	ImGui::Indent();
-	ImGui::Text("%.3f ms/frame", 1000.0f / m_CurrentFps);
-	ImGui::Text("%.1f FPS", m_CurrentFps);
-	ImGui::Unindent();
-	ImGui::Text("Average");
-	ImGui::Indent();
-	ImGui::Text("%.3f ms/frame", 1000.0f / ImGui::GetIO().Framerate);
-	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-	ImGui::Unindent();
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Text("Units");
-	ImGui::Text("%.0f Units Total", float(m_pAgentBasePooler->GetEnabledAgentsCount()));
-	ImGui::Indent();
-	ImGui::Text("%.0f Red", float(id0Count));
-	ImGui::Text("%.0f Blue", float(id1Count));
-	ImGui::Text("%.0f Green", float(id2Count));
-	ImGui::Text("%.0f Yellow", float(id3Count));
-	ImGui::Unindent();
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::InputInt("Count", &m_BenchmarkSpawnCount, 100);
-	ImGui::Spacing();
-	if (ImGui::Button("Start benchmark"))
+	if (ImGui::CollapsingHeader("Info", (const char*)0, true, true))
 	{
-		SpawnBenchmark(m_BenchmarkSpawnCount);
-		m_IsPaused = false;
+		ImGui::Indent();
+		ImGui::Text("Click 'spawn agents' to ");
+		ImGui::Text("spawn the given amount of");
+		ImGui::Text("agents for each team");
+		ImGui::Text("Or drag to spawn agents of");
+		ImGui::Text("the selected team in an");
+		ImGui::Text("area");
+		ImGui::Text("Change the selected team");
+		ImGui::Text("by pressing '1', '2', '3'");
+		ImGui::Text("or '4'");
+		ImGui::Text("Erase units by pressing");
+		ImGui::Text("backspace and dragging");
+		ImGui::Text("Or click 'Clear all'");
+		ImGui::Unindent();
+	}
+
+	if (ImGui::CollapsingHeader("Stats", (const char*)0, true, true))
+	{
+		ImGui::Indent();
+		ImGui::Text("Current");
+		ImGui::Indent();
+		ImGui::Text("%.3f ms/frame", 1000.0f / m_CurrentFps);
+		ImGui::Text("%.1f FPS", m_CurrentFps);
+		ImGui::Unindent();
+		ImGui::Text("Average");
+		ImGui::Indent();
+		ImGui::Text("%.3f ms/frame", 1000.0f / ImGui::GetIO().Framerate);
+		ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+		ImGui::Unindent();
+		ImGui::Spacing();
+		ImGui::Spacing();
+		ImGui::Text("Units");
+		ImGui::Text("%.0f Units Total", float(m_pAgentBasePooler->GetEnabledAgentsCount()));
+		ImGui::Indent();
+		ImGui::Text("%.0f Red", float(id0Count));
+		ImGui::Text("%.0f Blue", float(id1Count));
+		ImGui::Text("%.0f Green", float(id2Count));
+		ImGui::Text("%.0f Yellow", float(id3Count));
+		ImGui::Unindent();
+		ImGui::Unindent();
+	}
+
+	if (ImGui::CollapsingHeader("Settings", (const char*)0, true, true))
+	{
+		ImGui::Indent();
+		ImGui::Checkbox(" Separation", &m_pAgentBasePooler->GetUsingSeparation());
+		ImGui::Spacing();
+		ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
+		ImGui::Spacing();
+		ImGui::Text("TimeScale");
+		ImGui::SliderFloat("", &m_TimeScale, 0.f, 10.f);
+		ImGui::Spacing();
+		ImGui::Unindent();
+	}
+
+	if (ImGui::CollapsingHeader("Spawning", (const char*)0, true, true))
+	{
+		ImGui::Indent();
+		ImGui::Text("Amounts per team");
+		ImGui::Spacing();
+		ImGui::Text("Red");
+		ImGui::InputInt(" ", &m_AgentSpawnCounts[0], 100);
+		ImGui::Spacing();
+		ImGui::Text("Blue");
+		ImGui::InputInt("  ", &m_AgentSpawnCounts[1], 100);
+		ImGui::Spacing();
+		ImGui::Text("Green");
+		ImGui::InputInt("   ", &m_AgentSpawnCounts[2], 100);
+		ImGui::Spacing();
+		ImGui::Text("Yellow");
+		ImGui::InputInt("    ", &m_AgentSpawnCounts[3], 100);
+		ImGui::Spacing();
+		if (ImGui::Button("Spawn agents"))
+		{
+			SpawnAgents();
+		}
+		ImGui::Spacing();
+		if (ImGui::Button("Clear all"))
+		{
+			const std::vector<AgentBase*>& agents{ m_pAgentBasePooler->GetEnabledAgents() };
+			for (int i{}; i < m_pAgentBasePooler->GetEnabledAgentsCount(); ++i)
+			{
+				agents[i]->Damage(99999);
+			}
+		}
+		ImGui::Unindent();
 	}
 
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
-
-	ImGui::Checkbox(" Separation", &m_pAgentBasePooler->GetUsingSeparation());
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
 
 	//End
 	ImGui::PopAllowKeyboardFocus();
@@ -115,11 +153,6 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 
 void App_Battle_Simulator::ProcessInput()
 {
-	if (INPUTMANAGER->IsKeyboardKeyDown(eScancode_Space))
-	{
-		m_IsPaused = !m_IsPaused;
-	}
-
 	if (INPUTMANAGER->IsKeyboardKeyDown(eScancode_Backspace))
 	{
 		//will remove units when drawing box
@@ -184,19 +217,18 @@ void App_Battle_Simulator::ProcessInput()
 			//disable agents that need to be disabled
 			for (AgentBase* pAgent : agentsToDisable)
 			{
-				pAgent->Disable();
+				pAgent->Damage(9999);
 			}
 		}
+		//if spawning agents
 		else
 		{
-			Elite::Color color{ m_TeamColors[m_SpawningUnitTeamID] };
-
 			if (int(xMax - xMin) != 0 && int(yMax - yMin) != 0) //to avoid division by 0
 			{
 				//spawn agents in random position in drawed box
 				for (int i{}; i < (xMax - xMin) * (yMax - yMin) / 4; ++i)
 				{
-					m_pAgentBasePooler->SpawnNewAgent(m_SpawningUnitTeamID, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 3, 10);
+					SpawnAgent(m_SpawningUnitTeamID, m_TeamColors[m_SpawningUnitTeamID], xMin, xMax, yMin, yMax);
 				}
 			}
 		}			
@@ -208,7 +240,6 @@ void App_Battle_Simulator::Render(float deltaTime) const
 	if (m_IsHoldingMouseDown)
 	{
 		//draw box to visualize where we are spwning agents
-
 		float xMin{ min(M_MousePos1.x, M_MousePos2.x) };
 		float xMax{ max(M_MousePos1.x, M_MousePos2.x) };
 		float yMin{ min(M_MousePos1.y, M_MousePos2.y) };
@@ -225,63 +256,62 @@ void App_Battle_Simulator::Render(float deltaTime) const
 		delete[] points;
 	}	
 	
+	//render agents
 	m_pAgentBasePooler->Render();
 }
 
-void App_Battle_Simulator::SpawnBenchmark(int countPerTeam)
+void App_Battle_Simulator::SpawnAgents()
 {
+	//team 0
 	float xMin{ 150 };
-	float xMax{ 350 };
-	float yMin{ 350 };
-	float yMax{ 450 };
+	float xMax{ m_WorldDimensions.x - 150 };
+	float yMin{ m_WorldDimensions.y - 150 };
+	float yMax{ m_WorldDimensions.y - 50 };
 
-	Elite::Color color{ m_TeamColors[0] };
-
-	//spawn agents in random position in drawed box
-	for (int i{}; i < countPerTeam; ++i)
+	for (int i{}; i < m_AgentSpawnCounts[0]; ++i)
 	{
-		m_pAgentBasePooler->SpawnNewAgent(0, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+		SpawnAgent(0, m_TeamColors[0], xMin, xMax, yMin, yMax);
 	}
 
 
+	//team 1
 	xMin = 150;
-	xMax = 350;
+	xMax = m_WorldDimensions.x - 150;
 	yMin = 50;
 	yMax = 150;
 
-	color = m_TeamColors[1];
-
-	//spawn agents in random position in drawed box
-	for (int i{}; i < countPerTeam; ++i)
+	for (int i{}; i < m_AgentSpawnCounts[1]; ++i)
 	{
-		m_pAgentBasePooler->SpawnNewAgent(1, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+		SpawnAgent(1, m_TeamColors[1], xMin, xMax, yMin, yMax);
 	}
 
 
-	xMin = 350;
-	xMax = 450;
+	//team 2
+	xMin = m_WorldDimensions.x - 150;
+	xMax = m_WorldDimensions.x - 50;
 	yMin = 150;
-	yMax = 350;
+	yMax = m_WorldDimensions.y - 150;
 
-	color = m_TeamColors[2];
-
-	//spawn agents in random position in drawed box
-	for (int i{}; i < countPerTeam; ++i)
+	for (int i{}; i < m_AgentSpawnCounts[2]; ++i)
 	{
-		m_pAgentBasePooler->SpawnNewAgent(2, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+		SpawnAgent(2, m_TeamColors[2], xMin, xMax, yMin, yMax);
 	}
 
+
+	//team 3
 	xMin = 50;
 	xMax = 150;
 	yMin = 150;
-	yMax = 350;
+	yMax = m_WorldDimensions.y - 150;
 
-	color = m_TeamColors[3];
-
-	//spawn agents in random position in drawed box
-	for (int i{}; i < countPerTeam; ++i)
+	for (int i{}; i < m_AgentSpawnCounts[3]; ++i)
 	{
-		m_pAgentBasePooler->SpawnNewAgent(3, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
+		SpawnAgent(3, m_TeamColors[3], xMin, xMax, yMin, yMax);
 	}
+}
+
+void App_Battle_Simulator::SpawnAgent(int teamId, const Elite::Color& color, float xMin, float xMax, float yMin, float yMax)
+{
+	m_pAgentBasePooler->SpawnNewAgent(teamId, { xMin + float(rand() % int(xMax - xMin)),yMin + float(rand() % int(yMax - yMin)) }, 1, color, 100, 10, 1, 5, 10);
 }
 

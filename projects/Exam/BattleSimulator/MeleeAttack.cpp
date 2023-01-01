@@ -27,9 +27,9 @@ void MeleeAttack::Update(float dt)
 
 void MeleeAttack::TryAttack(AgentBase* target)
 {
+	//no need to check for range, since it is done when checking if the agent needs to move
 	if (m_AttackTimer >= m_AttackDelay)
 	{
-		//std::cout << "attack\n";
 		target->Damage(m_Damage);
 		m_AttackTimer = 0;
 	}

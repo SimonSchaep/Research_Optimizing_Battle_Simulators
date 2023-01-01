@@ -24,12 +24,9 @@ public:
 
 private:
 	//Datamembers
-
 	AgentBasePooler* m_pAgentBasePooler{};
 
 	Elite::Vector2 m_WorldDimensions{ 500,500 };
-
-	bool m_IsPaused{true};
 
 	float m_CurrentFps{};
 
@@ -39,8 +36,11 @@ private:
 	Elite::Vector2 M_MousePos1{};
 	Elite::Vector2 M_MousePos2{};
 
-	int m_BenchmarkSpawnCount{ 500 };
-	void SpawnBenchmark(int countPerTeam);
+	float m_TimeScale{ 1.f };
+
+	std::vector<int> m_AgentSpawnCounts{ 500,500,500,500 };
+	void SpawnAgents();
+	void SpawnAgent(int teamId, const Elite::Color& color, float xMin, float xMax, float yMin, float yMax);
 
 	void UpdateAndRenderUI();
 

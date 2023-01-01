@@ -15,6 +15,7 @@ AgentBase::~AgentBase()
 void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)
 {
 	m_pTargetAgent = nullptr;
+	m_TargetPosition = {};
 	m_IsEnabled = true;
 	m_TeamId = teamId;
 	m_Position = position;
@@ -23,11 +24,6 @@ void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius,
 	m_Health.Reset(healthAmount);
 	m_MeleeAttack.Reset(damage, attackSpeed, attackRange);
 	m_Speed = speed;
-}
-
-void AgentBase::Disable()
-{
-	m_IsEnabled = false;
 }
 
 void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation)
@@ -40,6 +36,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 
 	FindTarget(pAgentBasePooler, separation);
 
+	//update timers for meleeattack component
 	m_MeleeAttack.Update(dt);
 
 	CalculateVelocity(dt, separation);
@@ -56,6 +53,7 @@ void AgentBase::Render()
 
 void AgentBase::CalculateVelocity(float dt, bool separation)
 {
+	//go towards target agent or position
 	if (m_pTargetAgent)
 	{
 		m_Velocity = m_pTargetAgent->GetPosition() - m_Position;
@@ -67,18 +65,14 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		m_Velocity.Normalize();
 	}
 
-
 	//separation
 	for (int i{}; i < m_NeighborCount; ++i)
 	{
-		float modifier{ .2f };
+		float modifier{ 2.f };
 
-		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+		const float minDistance{ 0.5f };//make sure velocity can't go infinitely high
 		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 	}
-
-
-
 
 	//collision
 	Elite::Vector2 collisionForce{};
@@ -94,14 +88,9 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		}
 	}
 
-	if (collisionForce != Elite::Vector2{0,0})
-	{
-		m_Velocity *= 0.5f;
-	}
-
 	m_Velocity += collisionForce.GetNormalized();
 
-	float epsilon{ 0.6f };
+	float epsilon{ 0.4f };
 	if (m_Velocity.Magnitude() < epsilon)
 	{
 		m_Velocity = { 0,0 };
@@ -132,10 +121,12 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors
 
 	for (int i{}; i < pAgentBasePooler->GetEnabledAgentsCount(); ++i)
 	{
+		//find target
 		if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
 		{
 			m_pTargetAgent = agents[i];
 		}
+		//find neighbors
 		else if (findNeighbors && agents[i]->GetTeamId() == m_TeamId && agents[i] != this && agents[i]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
 		{
 			if (m_Neighbors.size() > m_NeighborCount)
