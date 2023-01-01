@@ -18,6 +18,7 @@ AgentBase::~AgentBase()
 void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)
 {
 	m_pTargetAgent = nullptr;
+	m_TargetPosition = {};
 	m_IsEnabled = true;
 	m_TeamId = teamId;
 	m_Position = position;
@@ -47,6 +48,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 
 	FindTarget(pAgentBasePooler, separation);
 
+	//update timers for meleeattack component
 	m_MeleeAttack.Update(dt);
 
 	CalculateVelocity(dt, separation);
@@ -85,6 +87,7 @@ void AgentBase::Render()
 
 void AgentBase::CalculateVelocity(float dt, bool separation)
 {
+	//go towards target agent or position
 	if (m_pTargetAgent)
 	{
 		m_Velocity = m_pTargetAgent->GetPosition() - m_Position;
@@ -96,19 +99,14 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		m_Velocity.Normalize();
 	}
 
-
-
 	//separation
 	for (int i{}; i < m_NeighborCount; ++i)
 	{
-		float modifier{ .2f };
+		float modifier{ 2.f };
 
-		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+		const float minDistance{ 0.5f };//make sure velocity can't go infinitely high
 		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 	}
-
-
-
 
 	//collision
 	Elite::Vector2 collisionForce{};
@@ -124,14 +122,9 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		}
 	}
 
-	if (collisionForce != Elite::Vector2{ 0,0 })
-	{
-		m_Velocity *= 0.5f;
-	}
-
 	m_Velocity += collisionForce.GetNormalized();
 
-	float epsilon{ 0.6f };
+	float epsilon{ 0.4f };
 	if (m_Velocity.Magnitude() < epsilon)
 	{
 		m_Velocity = { 0,0 };
@@ -160,18 +153,26 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors
 		return;
 	}
 
-
+	//reset vars
+	m_pTargetAgent = nullptr;
 	m_NeighborCount = 0;
 
 	//get closest cell for this team
 	const std::vector<AgentBase*>& agents{ m_pCell->GetClosestCell(m_TeamId)->GetAgents() };
 
+	//find target
 	for (int i{}; i < m_pCell->GetClosestCell(m_TeamId)->GetAgentCount(); ++i)
 	{
 		if (agents[i]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[i]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
 		{
 			m_pTargetAgent = agents[i];
 		}
+	}
+
+	//set position for when no more valid targets
+	if (m_pTargetAgent)
+	{
+		m_TargetPosition = m_pTargetAgent->GetPosition();
 	}
 
 	if (!findNeighbors)
