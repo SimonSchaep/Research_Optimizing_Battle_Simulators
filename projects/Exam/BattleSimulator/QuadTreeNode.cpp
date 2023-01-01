@@ -55,9 +55,17 @@ void QuadTreeNode::CheckSubDivide()
 	//subdivide node
 	if (m_AgentCount > m_MaxAgentCount)
 	{
-		//create child nodes
+		const float sizeLimit{ 0.1f };
+
 		const float halfCellWidth{ (m_MaxBounds.x - m_MinBounds.x) / 2 };
 		const float halfCellHeight{ (m_MaxBounds.y - m_MinBounds.y) / 2 };
+		//don't divide if size would become too small
+		if (halfCellWidth < sizeLimit || halfCellHeight < sizeLimit)
+		{
+			return;
+		}
+
+		//create child nodes
 		m_ChildNodes[0] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y},{m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight} };
 		m_ChildNodes[1] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y},{m_MaxBounds.x, m_MinBounds.y + halfCellHeight} };
 		m_ChildNodes[2] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight},{m_MaxBounds.x, m_MaxBounds.y} };
@@ -189,7 +197,6 @@ void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 		--m_AgentCount;
 		--m_TeamAgentCounts[pAgent->GetTeamId()];
 
-		//if total agents <= max
 		if (m_AgentCount == m_MaxAgentCount)
 		{
 			//combine children into self
@@ -265,7 +272,22 @@ void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
 			return;
 		}
 	}
-	std::cerr << "(add) agent doesnt fit any nodes\n";
+
+	//make sure everything still works when agents go out of bounds
+	// try to still avoid this from happening since other things might still not work anymore
+	const float clampedX{ max(min(pos.x, m_MaxBounds.x), m_MinBounds.x) };
+	const float clampedY{ max(min(pos.y, m_MaxBounds.y), m_MinBounds.y) };
+	const Elite::Vector2& altPos{ clampedX, clampedY };
+
+	for (QuadTreeNode* pNode : m_ChildNodes)
+	{
+		//check which child should contain the agent
+		if (altPos.x >= pNode->GetMinBounds().x && altPos.x <= pNode->GetMaxBounds().x && altPos.y >= pNode->GetMinBounds().y && altPos.y <= pNode->GetMaxBounds().y)
+		{
+			pNode->AddAgent(pAgent);
+			return;
+		}
+	}
 }
 
 void QuadTreeNode::RemoveAgentFromChild(AgentBase* pAgent)
@@ -280,5 +302,4 @@ void QuadTreeNode::RemoveAgentFromChild(AgentBase* pAgent)
 			return;
 		}
 	}
-	std::cerr << "(remove) agent doesnt fit any nodes\n";
 }
