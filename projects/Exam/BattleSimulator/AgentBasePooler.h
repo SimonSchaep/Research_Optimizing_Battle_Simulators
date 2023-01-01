@@ -32,8 +32,8 @@ private:
 	int m_DisabledAgentsCount{};
 	int m_EnabledAgentsCount{};
 
-	bool m_UsingMultithreading{};
-	bool m_UsingSeparation{};
+	bool m_UsingMultithreading{true};
+	bool m_UsingSeparation{true};
 
 	void AddToDisabledAgents(AgentBase* pAgent);
 };
