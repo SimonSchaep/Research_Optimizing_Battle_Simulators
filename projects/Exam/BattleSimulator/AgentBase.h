@@ -23,7 +23,7 @@ public:
 	bool GetIsEnabled() { return m_IsEnabled; };
 
 	const Elite::Vector2& GetPosition() { return m_Position; };
-	const Elite::Vector2& GetNodePosition() { return (m_pQuadTreeNode) ? (m_pQuadTreeNode->GetMinBounds() + Elite::Vector2{m_pQuadTreeNode->GetMaxBounds().x - m_pQuadTreeNode->GetMinBounds().x, m_pQuadTreeNode->GetMaxBounds().y - m_pQuadTreeNode->GetMinBounds().y } / 2) : m_Position; };
+	const Elite::Vector2& GetNodePosition() { return (m_pQuadTreeNode) ? m_pQuadTreeNode->GetMinBounds() : m_Position; };
 	int GetTeamId() { return m_TeamId; };
 
 	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell);

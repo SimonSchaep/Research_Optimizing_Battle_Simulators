@@ -39,8 +39,8 @@ private:
 
 	QuadTreeNode* m_pRoot{};
 
-	bool m_UsingMultithreading{false};
-	bool m_UsingSeparation{false};
+	bool m_UsingMultithreading{true};
+	bool m_UsingSeparation{true};
 
 	void AddToDisabledAgents(AgentBase* pAgent);
 };

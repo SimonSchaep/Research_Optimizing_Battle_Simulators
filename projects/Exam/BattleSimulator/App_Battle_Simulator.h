@@ -41,8 +41,9 @@ private:
 
 	float m_TimeScale{1.f};
 
-	int m_UnitSpawnCount{ 500 };
-	void SpawnUnits(int countPerTeam);
+	std::vector<int> m_AgentSpawnCounts{ 500,500,500,500 };
+	void SpawnAgents();
+	void SpawnAgent(int teamId, const Elite::Color& color, float xMin, float xMax, float yMin, float yMax);
 
 	void UpdateAndRenderUI();
 
