@@ -6,7 +6,7 @@ class QuadTreeNode;
 class AgentBasePooler
 {
 public:
-	AgentBasePooler(int size);
+	AgentBasePooler(int size, const Elite::Vector2& worldDimensions);
 	~AgentBasePooler();
 	
 	AgentBasePooler(const AgentBasePooler& other) = delete;

@@ -20,7 +20,7 @@ void App_Battle_Simulator::Start()
 
 	int size{ 500'000 };
 
-	m_pAgentBasePooler = new AgentBasePooler{ size }; //500k agents ready to be spawned
+	m_pAgentBasePooler = new AgentBasePooler{ size, m_WorldDimensions }; //500k agents ready to be spawned
 }
 
 void App_Battle_Simulator::Update(float deltaTime)

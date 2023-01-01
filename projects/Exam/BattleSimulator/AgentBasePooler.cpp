@@ -5,7 +5,7 @@
 #include "QuadTreeNode.h"
 #include <ppl.h>
 
-AgentBasePooler::AgentBasePooler(int size)
+AgentBasePooler::AgentBasePooler(int size, const Elite::Vector2& worldDimensions)
 {
 	m_DisabledAgentBasePointers.resize(size);
 	m_EnabledAgentBasePointers.resize(size);
@@ -17,7 +17,7 @@ AgentBasePooler::AgentBasePooler(int size)
 
 	m_DisabledAgentsCount = size;
 
-	m_pRoot = new QuadTreeNode{ {0,0}, {500,500} };
+	m_pRoot = new QuadTreeNode{ {0,0}, worldDimensions };
 }
 
 AgentBasePooler::~AgentBasePooler()
