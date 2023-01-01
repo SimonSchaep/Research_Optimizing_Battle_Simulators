@@ -127,7 +127,7 @@ void QuadTreeNode::FindClosestTarget(int ownTeamId, const Elite::Vector2& positi
 	//find closest target
 	for (int i{}; i < m_AgentCount; ++i)
 	{
-		if (m_Agents[i]->GetTeamId() == ownTeamId)
+		if (m_Agents[i]->GetTeamId() == ownTeamId || !m_Agents[i]->GetIsEnabled())
 		{
 			continue;
 		}
@@ -169,7 +169,7 @@ void QuadTreeNode::GetNearestNeighbors(AgentBase* pAgent, int ownTeamId, const E
 	for (int i{}; i < m_AgentCount; ++i)
 	{
 		//neighbor needs to be of our own team and not ourself
-		if (m_Agents[i]->GetTeamId() != ownTeamId || m_Agents[i] == pAgent)
+		if (m_Agents[i]->GetTeamId() != ownTeamId || m_Agents[i] == pAgent || !m_Agents[i]->GetIsEnabled())
 		{
 			continue;
 		}
@@ -207,7 +207,7 @@ void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 				for (int i{}; i < pNode->GetAgentCount(); ++i)
 				{
 					m_Agents[counter] = pNode->GetAgents()[i];
-					m_Agents[counter]->SetCell(this);
+					m_Agents[counter]->SetNode(this);
 					++counter;
 				}
 			}
@@ -257,7 +257,7 @@ void QuadTreeNode::AddAgent(AgentBase* pAgent)
 	++m_AgentCount;
 	++m_TeamAgentCounts[pAgent->GetTeamId()];
 
-	pAgent->SetCell(this);
+	pAgent->SetNode(this);
 }
 
 void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
@@ -273,8 +273,8 @@ void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
 		}
 	}
 
-	//make sure everything still works when agents go out of bounds
-	// try to still avoid this from happening since other things might still not work anymore
+	//when agent out of bounds, clamp to bounds
+	//this reduces performance so it's ideal to keep agents within bounds of the nodes
 	const float clampedX{ max(min(pos.x, m_MaxBounds.x), m_MinBounds.x) };
 	const float clampedY{ max(min(pos.y, m_MaxBounds.y), m_MinBounds.y) };
 	const Elite::Vector2& altPos{ clampedX, clampedY };

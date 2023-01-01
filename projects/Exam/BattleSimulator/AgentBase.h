@@ -16,7 +16,7 @@ public:
 	AgentBase(AgentBase&& other) = delete;
 	AgentBase& operator=(AgentBase&& other) = delete;
 	
-	void SetCell(QuadTreeNode* pCell) { m_pQuadTreeNode = pCell; };
+	void SetNode(QuadTreeNode* pNode) { m_pQuadTreeNode = pNode; };
 
 	void Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed);
 	
@@ -60,8 +60,6 @@ private:
 	int m_NeighborCount{};
 
 	void CalculateVelocity(float dt, bool separation);
-
-	void Disable(QuadTreeNode* pQuadTreeRoot);
 
 	bool Move(float dt);
 

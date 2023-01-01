@@ -15,6 +15,7 @@ AgentBase::~AgentBase()
 
 void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)
 {
+	m_pQuadTreeNode = nullptr;
 	m_pTargetAgent = nullptr;
 	m_TargetPosition = {};
 	m_IsEnabled = true;
@@ -27,20 +28,11 @@ void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius,
 	m_Speed = speed;
 }
 
-void AgentBase::Disable(QuadTreeNode* pQuadTreeRoot)
-{
-	m_IsEnabled = false;
-
-	assert(m_pQuadTreeNode);
-	pQuadTreeRoot->RemoveAgent(this);
-	m_pQuadTreeNode = nullptr;
-}
-
 void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separation, bool checkCell)
 {
 	if (checkCell && m_Health.IsDead()) //disable also checks cell, so for multithreading, this check needs to happen in separate function
 	{
-		Disable(pAgentBasePooler->GetQuadTreeRoot());
+		m_IsEnabled = false;
 		return;
 	}
 
@@ -70,7 +62,7 @@ void AgentBase::CheckIfCellChanged(AgentBasePooler* pAgentBasePooler)
 {
 	if (m_Health.IsDead())
 	{
-		Disable(pAgentBasePooler->GetQuadTreeRoot());
+		m_IsEnabled = false;
 		return;
 	}
 
@@ -108,7 +100,7 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 	{
 		float modifier{ 2.f };
 
-		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
+		const float minDistance{ 0.5f };//make sure velocity can't go infinitely high
 		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 	}
 
@@ -124,11 +116,6 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 				collisionForce += ((m_Position + m_Velocity * m_Speed * dt) - m_Neighbors[i]->GetPosition()).GetNormalized();
 			}
 		}
-	}
-
-	if (collisionForce != Elite::Vector2{ 0,0 })
-	{
-		m_Velocity *= 0.5f;
 	}
 
 	m_Velocity += collisionForce.GetNormalized();
@@ -170,6 +157,11 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors
 	//find target
 	float closestDistance{FLT_MAX};
 	pAgentBasePooler->GetQuadTreeRoot()->FindClosestTarget(m_TeamId, m_Position, &m_pTargetAgent, closestDistance);
+
+	if (m_pTargetAgent && !m_pTargetAgent->GetIsEnabled())
+	{
+		std::cerr << "error\n";
+	}
 
 	//set position for when no more valid targets
 	if (m_pTargetAgent)

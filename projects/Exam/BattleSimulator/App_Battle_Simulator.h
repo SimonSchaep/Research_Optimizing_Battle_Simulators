@@ -27,9 +27,7 @@ private:
 
 	AgentBasePooler* m_pAgentBasePooler{};
 
-	Elite::Vector2 m_WorldDimensions{ 500,500 };
-
-	bool m_IsPaused{ true };
+	Elite::Vector2 m_WorldDimensions{ 500,500 };	
 
 	float m_CurrentFps{};
 
@@ -40,6 +38,8 @@ private:
 	Elite::Vector2 M_MousePos2{};
 
 	bool m_RenderGrid{};
+
+	float m_TimeScale{1.f};
 
 	int m_BenchmarkSpawnCount{ 500 };
 	void SpawnBenchmark(int countPerTeam);

@@ -31,11 +31,7 @@ void App_Battle_Simulator::Update(float deltaTime)
 
 	UpdateAndRenderUI();
 
-	if (m_IsPaused)
-	{
-		deltaTime = 0;
-	}
-	m_pAgentBasePooler->Update(deltaTime);
+	m_pAgentBasePooler->Update(deltaTime * m_TimeScale);
 }
 
 void App_Battle_Simulator::UpdateAndRenderUI()
@@ -89,13 +85,18 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Spacing();
 	ImGui::Spacing();
 
-	ImGui::InputInt("Count", &m_BenchmarkSpawnCount, 100);
+	ImGui::InputInt(" Count", &m_BenchmarkSpawnCount, 100);
 	ImGui::Spacing();
 	if (ImGui::Button("Start benchmark"))
 	{
 		SpawnBenchmark(m_BenchmarkSpawnCount);
-		m_IsPaused = false;
 	}
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::SliderFloat(" TimeScale", &m_TimeScale, 0.f, 10.f);
 
 	ImGui::Spacing();
 	ImGui::Spacing();
@@ -107,13 +108,13 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Spacing();
 	ImGui::Spacing();
 
-	ImGui::Checkbox(" Render Grid", &m_RenderGrid);
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
 	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::Checkbox(" Render Grid", &m_RenderGrid);
 
 	//End
 	ImGui::PopAllowKeyboardFocus();
@@ -123,11 +124,6 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 
 void App_Battle_Simulator::ProcessInput()
 {
-	if (INPUTMANAGER->IsKeyboardKeyDown(eScancode_Space))
-	{
-		m_IsPaused = !m_IsPaused;
-	}
-
 	if (INPUTMANAGER->IsKeyboardKeyDown(eScancode_Backspace))
 	{
 		//will remove units when drawing box

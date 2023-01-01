@@ -95,6 +95,8 @@ void AgentBasePooler::Update(float dt)
 			continue;
 		}
 
+		m_pRoot->RemoveAgent(m_EnabledAgentBasePointers[toDisableIds[i]]);
+
 		// add to disabled agents
 		m_DisabledAgentBasePointers[m_DisabledAgentsCount] = m_EnabledAgentBasePointers[toDisableIds[i]];
 		++m_DisabledAgentsCount;
