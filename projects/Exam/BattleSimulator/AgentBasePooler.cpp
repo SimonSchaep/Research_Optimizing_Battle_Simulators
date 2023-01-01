@@ -17,8 +17,7 @@ AgentBasePooler::AgentBasePooler(int size)
 
 	m_DisabledAgentsCount = size;
 
-
-	m_pRoot = new QuadTreeNode{ {0,0}, {500,500}, 0 };
+	m_pRoot = new QuadTreeNode{ {0,0}, {500,500} };
 }
 
 AgentBasePooler::~AgentBasePooler()
@@ -39,10 +38,10 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
-	std::vector<int> toDisableIds;
-	toDisableIds.reserve(m_EnabledAgentsCount);
+	std::vector<int> toDisableIds; //store agents that need to be disabled in here to disable them later, cause disabling while looping will cause issues
+	toDisableIds.reserve(m_EnabledAgentsCount); //reserve is necessary when multithreading since resizing asynchronously would cause issues, will also make it faster to disable many agents in one frame
 
-	if (m_UsingMultithreading)
+	if (m_UsingMultithreading) //multithreading
 	{
 		concurrency::parallel_for(0, m_EnabledAgentsCount, [this, dt, &toDisableIds](int i)
 			{
@@ -58,7 +57,7 @@ void AgentBasePooler::Update(float dt)
 
 		
 	}
-	else
+	else //no multithreading
 	{
 		for (int i{}; i < m_EnabledAgentsCount; ++i)
 		{

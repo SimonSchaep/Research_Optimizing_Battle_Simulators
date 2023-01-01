@@ -16,6 +16,7 @@ AgentBase::~AgentBase()
 void AgentBase::Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)
 {
 	m_pTargetAgent = nullptr;
+	m_TargetPosition = {};
 	m_IsEnabled = true;
 	m_TeamId = teamId;
 	m_Position = position;
@@ -45,6 +46,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 
 	FindTarget(pAgentBasePooler, separation);
 
+	//update timers for meleeattack component
 	m_MeleeAttack.Update(dt);
 
 	CalculateVelocity(dt, separation);
@@ -53,7 +55,7 @@ void AgentBase::Update(float dt, AgentBasePooler* pAgentBasePooler, bool separat
 		m_MeleeAttack.TryAttack(m_pTargetAgent);
 	}
 	
-	//check if we need to update our node after we moved
+	//check if we need to update our node after we moved (not done during multithreading)
 	else if(checkCell && (
 		m_Position.x < m_pQuadTreeNode->GetMinBounds().x || m_Position.x >= m_pQuadTreeNode->GetMaxBounds().x ||
 		m_Position.y < m_pQuadTreeNode->GetMinBounds().y || m_Position.y >= m_pQuadTreeNode->GetMaxBounds().y
@@ -89,6 +91,7 @@ void AgentBase::Render()
 
 void AgentBase::CalculateVelocity(float dt, bool separation)
 {
+	//go towards target agent or position
 	if (m_pTargetAgent)
 	{
 		m_Velocity = m_pTargetAgent->GetPosition() - m_Position;
@@ -100,19 +103,14 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		m_Velocity.Normalize();
 	}
 
-
-
 	//separation
 	for (int i{}; i < m_NeighborCount; ++i)
 	{
-		float modifier{ .2f };
+		float modifier{ 2.f };
 
 		const float minDistance{ 0.01f };//make sure velocity can't go infinitely high
 		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 	}
-
-
-
 
 	//collision
 	Elite::Vector2 collisionForce{};
@@ -135,7 +133,7 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 
 	m_Velocity += collisionForce.GetNormalized();
 
-	float epsilon{ 0.6f };
+	float epsilon{ 0.4f };
 	if (m_Velocity.Magnitude() < epsilon)
 	{
 		m_Velocity = { 0,0 };
@@ -159,72 +157,23 @@ bool AgentBase::Move(float dt)
 
 void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors)
 {
+	//reset vars
 	m_pTargetAgent = nullptr;
 	m_NeighborCount = 0;
 
+	//find neighbors
 	if (findNeighbors)
 	{
 		pAgentBasePooler->GetQuadTreeRoot()->GetNearestNeighbors(this, m_TeamId, m_Position, m_Neighbors, m_NeighborCount, 40);
 	}	
 
+	//find target
 	float closestDistance{FLT_MAX};
-
 	pAgentBasePooler->GetQuadTreeRoot()->FindClosestTarget(m_TeamId, m_Position, &m_pTargetAgent, closestDistance);
 
-	int i{};
-
-	/*int row{};
-	int col{};
-
-	int range{};	
-	const int minRange{ 3 };
-	const int maxRange{ 50 };*/
-
-	////get current row and col
-	//pAgentBasePooler->GetQuadTreeRoot()->GetRowCol(pAgentBasePooler->GetQuadTreeRoot()->GetCellId(m_Position), row, col);
-	////check own cell
-	//CheckCell(pAgentBasePooler, row, col);
-
-	//while (range < maxRange && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || range < minRange))
-	//{
-	//	++range;
-
-	//	for (int r{-range}; r <= range; ++r)
-	//	{
-	//		CheckCell(pAgentBasePooler, row + r, col + (range - abs(r)));
-	//		if (abs(r) != range) //if not at very bottom or very top
-	//		{
-	//			//check second cell opposite to previous one checked
-	//			CheckCell(pAgentBasePooler, row + r, col - (range - abs(r)));
-	//		}			
-	//	}
-	//}
-}
-
-void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col)
-{
-	/*const float neighborRadiusSquared{ 40 };
-
-	int cellId{ pAgentBasePooler->GetQuadTreeRoot()->GetCellId(row, col) };
-	QuadTreeNode* pCell{ pAgentBasePooler->GetQuadTreeRoot()->GetCells()[cellId] };
-	const std::vector<AgentBase*>& agents = pCell->GetAgents();
-	for (int agentId{}; agentId < pCell->GetAgentCount(); ++agentId)
+	//set position for when no more valid targets
+	if (m_pTargetAgent)
 	{
-		if (agents[agentId]->GetTeamId() != m_TeamId && (!m_pTargetAgent || !m_pTargetAgent->GetIsEnabled() || agents[agentId]->GetPosition().DistanceSquared(m_Position) < m_pTargetAgent->GetPosition().DistanceSquared(m_Position)))
-		{
-			m_pTargetAgent = agents[agentId];
-		}
-		else if (agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
-		{
-			if (m_Neighbors.size() > m_NeighborCount)
-			{
-				m_Neighbors[m_NeighborCount] = agents[agentId];
-			}
-			else
-			{
-				m_Neighbors.push_back(agents[agentId]);
-			}
-			++m_NeighborCount;
-		}
-	}*/
+		m_TargetPosition = m_pTargetAgent->GetPosition();
+	}
 }

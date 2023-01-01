@@ -4,7 +4,7 @@ class AgentBase;
 class QuadTreeNode
 {
 public:
-	QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds, int depth);
+	QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds);
 	~QuadTreeNode();
 
 	QuadTreeNode(const QuadTreeNode& other) = delete;
@@ -38,8 +38,6 @@ private:
 	std::vector<int> m_TeamAgentCounts{};
 
 	const int m_MaxAgentCount{20};
-
-	int m_Depth{};
 
 	std::vector<QuadTreeNode*> m_ChildNodes{};
 

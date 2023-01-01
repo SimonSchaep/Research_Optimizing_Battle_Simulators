@@ -4,10 +4,9 @@
 #include "QuadTreeNode.h"
 #include "AgentBase.h"
 
-QuadTreeNode::QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds, int depth)
+QuadTreeNode::QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds)
 	: m_MinBounds{ minBounds }
 	, m_MaxBounds{ maxBounds }
-	, m_Depth{ depth }
 {
 	m_ChildNodes.resize(4);
 	m_TeamAgentCounts.resize(4);
@@ -37,6 +36,7 @@ void QuadTreeNode::Render() const
 	points[1] = { m_MinBounds.x, m_MaxBounds.y };
 	points[2] = { m_MaxBounds.x, m_MaxBounds.y };
 	points[3] = { m_MaxBounds.x, m_MinBounds.y };
+	//draw polygon through specified points
 	DEBUGRENDERER2D->DrawPolygon(&points[0], 4, { 1,0,0 }, -1);
 	DEBUGRENDERER2D->DrawString({ points[0].x + (m_MaxBounds.x - m_MinBounds.x) / 2, points[0].y + (m_MaxBounds.y - m_MinBounds.y) / 2 }, std::to_string(m_AgentCount).c_str());
 }
@@ -58,10 +58,10 @@ void QuadTreeNode::CheckSubDivide()
 		//create child nodes
 		const float halfCellWidth{ (m_MaxBounds.x - m_MinBounds.x) / 2 };
 		const float halfCellHeight{ (m_MaxBounds.y - m_MinBounds.y) / 2 };
-		m_ChildNodes[0] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y},{m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight}, m_Depth + 1 };
-		m_ChildNodes[1] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y},{m_MaxBounds.x, m_MinBounds.y + halfCellHeight}, m_Depth + 1 };
-		m_ChildNodes[2] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight},{m_MaxBounds.x, m_MaxBounds.y}, m_Depth + 1 };
-		m_ChildNodes[3] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y + halfCellHeight},{m_MinBounds.x + halfCellWidth, m_MaxBounds.y}, m_Depth + 1 };
+		m_ChildNodes[0] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y},{m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight} };
+		m_ChildNodes[1] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y},{m_MaxBounds.x, m_MinBounds.y + halfCellHeight} };
+		m_ChildNodes[2] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight},{m_MaxBounds.x, m_MaxBounds.y} };
+		m_ChildNodes[3] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y + halfCellHeight},{m_MinBounds.x + halfCellWidth, m_MaxBounds.y} };
 
 		//add agents to children
 		for (int i{}; i < m_AgentCount; ++i)
@@ -79,18 +79,17 @@ void QuadTreeNode::FindClosestTarget(int ownTeamId, const Elite::Vector2& positi
 		//first check the node where our agent is
 		for (QuadTreeNode* pNode : m_ChildNodes)
 		{
+			//first check the node that contains our agent
 			if (position.x >= pNode->GetMinBounds().x && position.x < pNode->GetMaxBounds().x && position.y >= pNode->GetMinBounds().y && position.y < pNode->GetMaxBounds().y)
 			{
-				const Elite::Vector2& p0{ pNode->GetMinBounds() };
-				const Elite::Vector2& p1{ pNode->GetMaxBounds() };
-				Elite::Vector2 p2{ pNode->GetMinBounds().x, pNode->GetMaxBounds().y };
-				Elite::Vector2 p3{ pNode->GetMaxBounds().x, pNode->GetMinBounds().y };
+				//find closest point to agent
+				const float clampedX{ max(min(position.x, pNode->GetMaxBounds().x), pNode->GetMinBounds().x) };
+				const float clampedY{ max(min(position.y, pNode->GetMaxBounds().y), pNode->GetMinBounds().y) };
+				Elite::Vector2 closestPointToAgent{ clampedX, clampedY };
 				//only search if it has agents that aren't all of our own team
 				if (pNode->GetAgentCount() > pNode->GetTeamAgentCount(ownTeamId) && (!pClosestTarget ||
-					p0.DistanceSquared(position) < currentClosestDistanceSquared ||
-					p1.DistanceSquared(position) < currentClosestDistanceSquared ||
-					p2.DistanceSquared(position) < currentClosestDistanceSquared ||
-					p3.DistanceSquared(position) < currentClosestDistanceSquared
+					//if the closest point to agent is within the radius
+					closestPointToAgent.DistanceSquared(position) < currentClosestDistanceSquared
 					))
 				{
 					pNode->FindClosestTarget(ownTeamId, position, pClosestTarget, currentClosestDistanceSquared);
@@ -100,16 +99,14 @@ void QuadTreeNode::FindClosestTarget(int ownTeamId, const Elite::Vector2& positi
 		}
 		for (QuadTreeNode* pNode : m_ChildNodes)
 		{
-			const Elite::Vector2& p0{pNode->GetMinBounds()};
-			const Elite::Vector2& p1{pNode->GetMaxBounds()};
-			Elite::Vector2 p2{pNode->GetMinBounds().x, pNode->GetMaxBounds().y};
-			Elite::Vector2 p3{pNode->GetMaxBounds().x, pNode->GetMinBounds().y};
+			//find closest point to agent
+			const float clampedX{ max(min(position.x, pNode->GetMaxBounds().x), pNode->GetMinBounds().x) };
+			const float clampedY{ max(min(position.y, pNode->GetMaxBounds().y), pNode->GetMinBounds().y) };
+			Elite::Vector2 closestPointToAgent{ clampedX, clampedY };
 			//only search if it has agents that aren't all of our own team
 			if (pNode->GetAgentCount() > pNode->GetTeamAgentCount(ownTeamId) && (!pClosestTarget ||
-				p0.DistanceSquared(position) < currentClosestDistanceSquared ||
-				p1.DistanceSquared(position) < currentClosestDistanceSquared ||
-				p2.DistanceSquared(position) < currentClosestDistanceSquared ||
-				p3.DistanceSquared(position) < currentClosestDistanceSquared
+				//if the closest point to agent is within the radius
+				closestPointToAgent.DistanceSquared(position) < currentClosestDistanceSquared
 				))
 			{
 				pNode->FindClosestTarget(ownTeamId, position, pClosestTarget, currentClosestDistanceSquared);
@@ -119,6 +116,7 @@ void QuadTreeNode::FindClosestTarget(int ownTeamId, const Elite::Vector2& positi
 		return;
 	}
 
+	//find closest target
 	for (int i{}; i < m_AgentCount; ++i)
 	{
 		if (m_Agents[i]->GetTeamId() == ownTeamId)
@@ -140,16 +138,15 @@ void QuadTreeNode::GetNearestNeighbors(AgentBase* pAgent, int ownTeamId, const E
 	{
 		for (QuadTreeNode* pNode : m_ChildNodes)
 		{
-			Elite::Vector2 p0{ pNode->GetMinBounds().x, position.y };
-			Elite::Vector2 p1{ pNode->GetMaxBounds().x, position.y };
-			Elite::Vector2 p2{ position.x, pNode->GetMinBounds().y };
-			Elite::Vector2 p3{ position.x, pNode->GetMaxBounds().y };
+			//find closest point to agent
+			const float clampedX{ max(min(position.x, pNode->GetMaxBounds().x), pNode->GetMinBounds().x) };
+			const float clampedY{ max(min(position.y, pNode->GetMaxBounds().y), pNode->GetMinBounds().y) };
+			Elite::Vector2 closestPointToAgent{ clampedX, clampedY };
 			//only search if it has agents that are of our own team
 			if (pNode->GetTeamAgentCount(ownTeamId) > 0 && (
-				p0.DistanceSquared(position) < neighborRadiusSquared ||
-				p1.DistanceSquared(position) < neighborRadiusSquared ||
-				p2.DistanceSquared(position) < neighborRadiusSquared ||
-				p3.DistanceSquared(position) < neighborRadiusSquared ||
+				//if the closest point to agent is within the radius
+				closestPointToAgent.DistanceSquared(position) < neighborRadiusSquared ||
+				//or if the node contains the agent
 				(position.x >= pNode->GetMinBounds().x && position.x < pNode->GetMaxBounds().x && position.y >= pNode->GetMinBounds().y && position.y < pNode->GetMaxBounds().y)
 				))
 			{
@@ -160,8 +157,10 @@ void QuadTreeNode::GetNearestNeighbors(AgentBase* pAgent, int ownTeamId, const E
 		return;
 	}
 
+	//add all neighbors that are close enough
 	for (int i{}; i < m_AgentCount; ++i)
 	{
+		//neighbor needs to be of our own team and not ourself
 		if (m_Agents[i]->GetTeamId() != ownTeamId || m_Agents[i] == pAgent)
 		{
 			continue;
@@ -191,7 +190,7 @@ void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 		--m_TeamAgentCounts[pAgent->GetTeamId()];
 
 		//if total agents <= max
-		if (m_Depth != 0 && m_AgentCount == m_MaxAgentCount)
+		if (m_AgentCount == m_MaxAgentCount)
 		{
 			//combine children into self
 			//all child nodes won't have more children since they would have merged from a previous RemoveAgentFromChild() call
@@ -206,6 +205,7 @@ void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 				}
 			}
 
+			//delete children
 			for (size_t i{}; i < m_ChildNodes.size(); ++i)
 			{
 				delete m_ChildNodes[i];
@@ -215,9 +215,12 @@ void QuadTreeNode::RemoveAgent(AgentBase* pAgent)
 		return;
 	}
 
+	
 	--m_AgentCount;
 	--m_TeamAgentCounts[pAgent->GetTeamId()];
+	//put last agent in vector to position of the agent that needs to be removed
 	std::replace(m_Agents.begin(), m_Agents.end(), pAgent, m_Agents[m_AgentCount]);
+	//remove last agent
 	m_Agents[m_AgentCount] = nullptr;
 }
 
@@ -255,6 +258,7 @@ void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
 	const Elite::Vector2& pos{ pAgent->GetPosition() }; //take current position
 	for (QuadTreeNode* pNode : m_ChildNodes)
 	{
+		//check which child should contain the agent
 		if (pos.x >= pNode->GetMinBounds().x && pos.x < pNode->GetMaxBounds().x && pos.y >= pNode->GetMinBounds().y && pos.y < pNode->GetMaxBounds().y)
 		{
 			pNode->AddAgent(pAgent);
@@ -266,9 +270,10 @@ void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
 
 void QuadTreeNode::RemoveAgentFromChild(AgentBase* pAgent)
 {
-	const Elite::Vector2& pos{ pAgent->GetNodePosition() }; //take old position
+	const Elite::Vector2& pos{ pAgent->GetNodePosition() }; //take old position, since new position might be in different parent node
 	for (QuadTreeNode* pNode : m_ChildNodes)
 	{
+		//check which child contained the agent
 		if (pos.x >= pNode->GetMinBounds().x && pos.x < pNode->GetMaxBounds().x && pos.y >= pNode->GetMinBounds().y && pos.y < pNode->GetMaxBounds().y)
 		{
 			pNode->RemoveAgent(pAgent);
