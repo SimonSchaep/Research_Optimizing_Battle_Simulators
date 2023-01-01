@@ -6,7 +6,7 @@
 #include "Cell.h"
 #include <ppl.h>
 
-AgentBasePooler::AgentBasePooler(int size)
+AgentBasePooler::AgentBasePooler(int size, const Elite::Vector2& worldDimensions)
 {
 	m_DisabledAgentBasePointers.resize(size);
 	m_EnabledAgentBasePointers.resize(size);
@@ -19,7 +19,7 @@ AgentBasePooler::AgentBasePooler(int size)
 	m_DisabledAgentsCount = size;
 
 
-	m_pGrid = new Grid{ 100, 100, 5 };
+	m_pGrid = new Grid{ 100, 100, worldDimensions.x / 100.f };
 }
 
 AgentBasePooler::~AgentBasePooler()
@@ -40,10 +40,10 @@ AgentBasePooler::~AgentBasePooler()
 
 void AgentBasePooler::Update(float dt)
 {
-	std::vector<int> toDisableIds;
-	toDisableIds.reserve(m_EnabledAgentsCount);
+	std::vector<int> toDisableIds;//store agents that need to be disabled in here to disable them later, cause disabling while looping will cause issues
+	toDisableIds.reserve(m_EnabledAgentsCount);//reserve is necessary when multithreading since resizing asynchronously would cause issues, will also make it faster to disable many agents in one frame
 
-	if (m_UsingMultithreading)
+	if (m_UsingMultithreading) //multithreading
 	{
 		concurrency::parallel_for(0, m_EnabledAgentsCount, [this, dt, &toDisableIds](int i)
 			{
@@ -69,7 +69,7 @@ void AgentBasePooler::Update(float dt)
 		//but we need it to be sorted for the disabling to work
 		std::sort(toDisableIds.begin(), toDisableIds.end());
 	}
-	else
+	else //no multithreading
 	{
 		for (int i{}; i < m_EnabledAgentsCount; ++i)
 		{

@@ -16,7 +16,9 @@ Cell::~Cell()
 void Cell::RemoveAgent(AgentBase* pAgent)
 {
 	--m_AgentCount;
+	//put last agent in vector to position of the agent that needs to be removed
 	std::replace(m_Agents.begin(), m_Agents.end(), pAgent, m_Agents[m_AgentCount]);
+	//remove last agent
 	m_Agents[m_AgentCount] = nullptr;
 }
 
