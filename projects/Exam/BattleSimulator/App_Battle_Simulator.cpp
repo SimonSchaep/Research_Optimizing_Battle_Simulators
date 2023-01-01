@@ -53,6 +53,24 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::PushAllowKeyboardFocus(false);
 
 	//Elements
+	ImGui::Text("Info");
+	ImGui::Indent();
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Text("Click 'spawn units' to ");
+	ImGui::Text("spawn the given amount of");
+	ImGui::Text("agents for each team");
+	ImGui::Text("Or drag to spawn units of");
+	ImGui::Text("the selected team in an");
+	ImGui::Text("area");
+	ImGui::Text("Change the selected team");
+	ImGui::Text("by pressing '1', '2', '3'");
+	ImGui::Text("or '4'");
+	ImGui::Text("Erase units by pressing");
+	ImGui::Text("backspace and dragging");
+	ImGui::Text("Or click 'Clear all'");
+	ImGui::Unindent();
+
 	ImGui::Text("STATS");
 	ImGui::Indent();
 	ImGui::Spacing();
@@ -81,40 +99,39 @@ void App_Battle_Simulator::UpdateAndRenderUI()
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
+
+	ImGui::Checkbox(" Separation", &m_pAgentBasePooler->GetUsingSeparation());
 	ImGui::Spacing();
+	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
 	ImGui::Spacing();
+	ImGui::Checkbox(" Render Grid", &m_RenderGrid);
 	ImGui::Spacing();
 
-	ImGui::InputInt(" Count", &m_BenchmarkSpawnCount, 100);
+	ImGui::Text("TimeScale");
+	ImGui::SliderFloat("", &m_TimeScale, 0.f, 10.f);
+	
 	ImGui::Spacing();
-	if (ImGui::Button("Start benchmark"))
+
+	ImGui::Text("Count per team");
+	ImGui::InputInt(" ", &m_UnitSpawnCount, 100);
+	ImGui::Spacing();
+	if (ImGui::Button("Spawn units"))
 	{
-		SpawnBenchmark(m_BenchmarkSpawnCount);
+		SpawnUnits(m_UnitSpawnCount);
+	}
+	ImGui::Spacing();
+	if (ImGui::Button("Clear all"))
+	{
+		const std::vector<AgentBase*>& agents{ m_pAgentBasePooler->GetEnabledAgents() };
+		for (int i{}; i < m_pAgentBasePooler->GetEnabledAgentsCount(); ++i)
+		{
+			agents[i]->Damage(99999);
+		}
 	}
 
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
-
-	ImGui::SliderFloat(" TimeScale", &m_TimeScale, 0.f, 10.f);
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::Checkbox(" Separation", &m_pAgentBasePooler->GetUsingSeparation());
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::Checkbox(" Multithreading", &m_pAgentBasePooler->GetUsingMultiThreading());
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::Checkbox(" Render Grid", &m_RenderGrid);
 
 	//End
 	ImGui::PopAllowKeyboardFocus();
@@ -230,7 +247,7 @@ void App_Battle_Simulator::Render(float deltaTime) const
 	m_pAgentBasePooler->Render(m_RenderGrid);
 }
 
-void App_Battle_Simulator::SpawnBenchmark(int countPerTeam)
+void App_Battle_Simulator::SpawnUnits(int countPerTeam)
 {
 	float xMin{ 150 };
 	float xMax{ 350 };

@@ -41,8 +41,8 @@ private:
 
 	float m_TimeScale{1.f};
 
-	int m_BenchmarkSpawnCount{ 500 };
-	void SpawnBenchmark(int countPerTeam);
+	int m_UnitSpawnCount{ 500 };
+	void SpawnUnits(int countPerTeam);
 
 	void UpdateAndRenderUI();
 
