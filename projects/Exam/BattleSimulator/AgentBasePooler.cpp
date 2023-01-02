@@ -19,7 +19,7 @@ AgentBasePooler::AgentBasePooler(int size, const Elite::Vector2& worldDimensions
 	m_DisabledAgentsCount = size;
 
 
-	m_pGrid = new Grid{ 100, 100, worldDimensions.x / 100.f };
+	m_pGrid = new Grid{ 20, 20, worldDimensions.x / 20.f };
 }
 
 AgentBasePooler::~AgentBasePooler()
