@@ -124,14 +124,6 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 
 	m_Velocity += collisionForce.GetNormalized();
 
-	float epsilon{ 0.4f };
-	if (m_Velocity.Magnitude() < epsilon)
-	{
-		m_Velocity = { 0,0 };
-		return;
-	}
-
-	//m_Velocity.Normalize();
 	m_Velocity *= m_Speed;
 }
 
