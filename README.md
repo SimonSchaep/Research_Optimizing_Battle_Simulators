@@ -195,7 +195,8 @@ Partitioning is a design pattern used to divide up agents into different 'groups
 There are many different kinds of partitioning. The simplest is using a grid to divide the world in many cells, each cell represents a group of agents.
 I will first explain how I implemented gridpartitioning.
 
-Archtecture:
+
+Simple grid partitioning
 We have a grid class and a cell class.
 The grid contains a vector of cells, it also contains functions to get specific cells (based on position and row/column).
 A cell contains a vector that holds the agents in that cell.
@@ -203,7 +204,36 @@ A cell contains a vector that holds the agents in that cell.
 Our agent now also holds a pointer to the cell it is currently in. To make sure the cells have the correct agents inside, we will need to check every frame, for every agent, if the cell at the agent's position is still the same cell as last frame, if it changed we have to update the current cell in the agent and add the agent to the new cell and remove it from the old cell.
 
 This works perfectly, you can see it in action by ticking the 'render grid' option in the UI of the application.
-But there is an issue when we do this while multithreading. While we are finding a target in a cell in one thread, another might be modifying that same cell's vector of agents, this causes issues since we might be removing from a vector while looping over it. To fix this we need to update the agents' cells in a synchronous for loop after the normal update. This will make the multithreading a lot less efficient but is still a good solution. Another solution would be buffering the agents in every cell. So instead of modifying the active vector of agents when removing or adding agents, we would do it on a separate vector, and then update the active vector based on the modified one after looping over our agents. That way we will need a lot more memory and won't necessarily be faster since updating the vector would happen twice (on the buffer, and after that on the active vector).
+But there is an issue when we do this while multithreading. While we are finding a target in a cell in one thread, another might be modifying that same cell's vector of agents, this causes issues since we might be removing from a vector while looping over it. To fix this we need to update the agents' cells in a synchronous for loop after the normal update. This will make the multithreading a lot less efficient because we need to loop over our agents twice, but it's still a good solution. Another solution would be buffering the agents in every cell. So instead of modifying the active vector of agents when removing or adding agents, we would do it on a separate vector, and then update the active vector based on the modified one after looping over our agents. That way we will need a lot more memory and won't necessarily be faster since updating the vector would happen twice (on the buffer, and after that on the active vector).
+
+Next up, finding the cells that we need to check.
+Usually with partitioning, only the same cell as the agent is checked, or the surrounding cells in a certain radius. In our case however, it depends on where our agent isq relative to the closest target. The target might be in the same cell, in which case we only need to check that one, but it could also be in the furthest place possible, in which case we need to check all cells. For this implementation, we first check our own cell, then the cells surrounding our own cell, and then increase the range at which we search for a target as long as we haven't found one yet. This method won't be perfectly accurate, but the inaccuracy is barely noticable and performance is heavily improved.
+
+
+Own experimentation
+I also made a variant of the simple grid partitioning where I tried to improve performance even more.
+All agents in a cell, will generally have to look through the agents of the same cell to find a target, so my idea was to instead loop over every cell and find the closest cell with enemy agents for each team. Then, when finding a target for an agent, only loop over the agents in the closest cell of our own cell according to the team we are in. This way, we don't have to find the closest cell for every agent.
+This technique gives a performance boost when there are not that many cells. but when there are more cells, it actually decreases performance since it has to loop over all the cells every frame.
+
+
+Quad tree partitioning
+A quad tree is a data structure where there is a root, this root has four (quad) children, every child node can have children of their own, which in turn have children. A child node can also be a leaf, which means it doesn't have any children but instead contains data (in our case a vector of agents).
+This structure can be used for partitioning instead of a grid. The biggest advantage is when agents are very close to eachother, and only occupy a small part of the world, since with a quad tree, there will be more nodes (comparable to cells) where there are many agents, and less where there are few. This makes looking for other agents a lot faster, but adding and removing agents from a node will be a lot slower because a node might need to subdivide into more nodes when there are too many agents, or it might need to merge with other children when there are too few agents.
+The architecture is still quite simple since there is only the need for one class, a quadTreeNode class, since the root, leaves and children are basically the same.
+They have the option of having four child nodes, or a vector of agents.
+
+Inserting and removing in a quad tree happens relatively similar to a grid. An important difference is that removing and adding needs to start from the root, so that all nodes can have their agent counts updated. They all need an agent count to know whether they need to absorb their children.
+When we start from the root we will have to check in which child our agent is, and then call add or remove on that child. This is repeated until we are in a node without children, then we do the operation on this node.
+
+Finding the closest target can be more difficult, since we can't just look at the bordering cells because there might be 10 bordering cells on the left, and 1 at the top, we can't know. Luckily there are algorithms that are developed for this. I made my own interpretation of how I understand these algorithms work.
+We first check the node that our agent is in, we go as deep as possible, and try to find a target. When we find a target, we store this as the current closest target. Then we go on and check other nodes. To avoid going through all nodes and all agents, we first check if a node is worth visiting by checking if the closest position within the bounds of that node is closer to our agent than the current closest target. If this is the case there is a chance that a closer target is within this node.
+
+
+
+Conclusion:
+Overall, grid partitioning is the easiest to implement and has almost the same performance when units are spread out. But when units are closer together quad tree partitioning is more efficient since it divides those cells with many agents into smaller ones.
+Doing the target finding partly in the cells can give a small boost to performance, but this technique can probably be improved a lot when explored further. Maybe it can even be combined with a quad tree instead of grid?
+
 
 explain different kinds of partitioning and what they're good for
 https://www.ijarnd.com/manuscripts/v3i10/V3I10-1144.pdf
@@ -240,6 +270,10 @@ with partitioning, will not always find closest target
 
 
 CROWD SIMULATION:
+
+
+
+
 https://en.wikipedia.org/wiki/Crowd_simulation
 explain different ways to simulate a crowd
 
@@ -256,7 +290,21 @@ can decrease neighbor radius to decrease spacing between agents
 
 
 
+KNOWN ISSUES:
+When agents are outside the world bounds in any partitioning application, they will be counted as part of the closest cell/node. This will result in inaccurate target/neighbor finding.
+Agents won't always go to the closest target with partitioning, this is more prevalent when target acquisition is done in the cells.
+Low fps and/or high timescale will cause agents to be shot away from eachother.
+Agents will overlap when in combat even when separation is on.
+
+
 FUTURE WORK:
+There are definitely a lot more improvements that can be made. Like using the gpu for updating agents, implementing better collision algorithms or using more realistic crowd simulation algorithms.
+Another way of finding targets could be implemented by using dynamic flow fields, that direct agents towards eachother based on where they are located. There would need to be different flow fields for every team, and dynamically generating a flow field might be expensive. This would have to be tested.
+
+There are also probably a lot of inefficiencies that I'm doing since I'm not an expert programmer by far. I definitely learned a lot though and will probably do some follow-up research when I find the time.
+
+
+
 Implement better crowd simulation
 Use GPU
 Implement efficient collision system
