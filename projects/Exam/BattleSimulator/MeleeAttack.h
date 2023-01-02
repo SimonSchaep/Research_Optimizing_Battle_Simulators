@@ -19,7 +19,7 @@ public:
 
 	void TryAttack(AgentBase* target);
 
-	bool IsTargetInRange(AgentBase* target, Elite::Vector2 ownPosition);
+	bool IsTargetInRange(AgentBase* target, const Elite::Vector2& ownPosition);
 
 private:
 	float m_Damage{};
@@ -27,7 +27,5 @@ private:
 
 	float m_AttackTimer{};
 	float m_AttackDelay{};
-
-
 };
 
