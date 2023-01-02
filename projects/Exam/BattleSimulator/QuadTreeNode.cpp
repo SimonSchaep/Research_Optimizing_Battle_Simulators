@@ -259,7 +259,31 @@ void QuadTreeNode::AddAgent(AgentBase* pAgent)
 
 	pAgent->SetNode(this);
 
-	CheckSubDivide();
+	if (m_AgentCount > m_MaxAgentCount)
+	{
+		const float sizeLimit{ 0.1f };
+
+		const float halfCellWidth{ (m_MaxBounds.x - m_MinBounds.x) / 2 };
+		const float halfCellHeight{ (m_MaxBounds.y - m_MinBounds.y) / 2 };
+		//don't divide if size would become too small
+		if (halfCellWidth < sizeLimit || halfCellHeight < sizeLimit)
+		{
+			return;
+		}
+
+		//create child nodes
+		m_ChildNodes[0] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y},{m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight} };
+		m_ChildNodes[1] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y},{m_MaxBounds.x, m_MinBounds.y + halfCellHeight} };
+		m_ChildNodes[2] = new QuadTreeNode{ {m_MinBounds.x + halfCellWidth, m_MinBounds.y + halfCellHeight},{m_MaxBounds.x, m_MaxBounds.y} };
+		m_ChildNodes[3] = new QuadTreeNode{ {m_MinBounds.x, m_MinBounds.y + halfCellHeight},{m_MinBounds.x + halfCellWidth, m_MaxBounds.y} };
+
+		//add agents to children
+		for (int i{}; i < m_AgentCount; ++i)
+		{
+			AddAgentToChild(m_Agents[i]);
+			m_Agents[i] = nullptr;
+		}
+	}
 }
 
 void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)
