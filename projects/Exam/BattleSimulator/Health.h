@@ -18,8 +18,5 @@ public:
 private:
 	float m_CurrentHealth;
 	float m_MaxHealth;
-
-
-
 };
 
