@@ -146,6 +146,21 @@ void AgentBasePooler::GetEnabledAgentCountsByTeamId(int& id0, int& id1, int& id2
 
 AgentBase* AgentBasePooler::SpawnNewAgent(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed)
 {
+	//if not enough agents in pool
+	if (m_DisabledAgentsCount <= 0)
+	{
+		//allocate memory for 1000 more
+		const int extraAgentsCount{ 1000 };
+		m_DisabledAgentsCount += extraAgentsCount;
+		m_DisabledAgentBasePointers.resize(m_DisabledAgentBasePointers.size() + extraAgentsCount); //increase size of the vector
+		m_EnabledAgentBasePointers.resize(m_EnabledAgentBasePointers.size() + extraAgentsCount); //increase size of the vector
+		//set first 1000 elements to new agents
+		for (int i{}; i < extraAgentsCount; ++i)
+		{
+			m_DisabledAgentBasePointers[i] = new AgentBase{};
+		}
+	}
+
 	--m_DisabledAgentsCount;
 	m_EnabledAgentBasePointers[m_EnabledAgentsCount] = m_DisabledAgentBasePointers[m_DisabledAgentsCount];
 	m_DisabledAgentBasePointers[m_DisabledAgentsCount] = nullptr;
