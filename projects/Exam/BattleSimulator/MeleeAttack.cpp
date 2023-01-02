@@ -36,7 +36,7 @@ void MeleeAttack::TryAttack(AgentBase* target)
 	
 }
 
-bool MeleeAttack::IsTargetInRange(AgentBase* target, Elite::Vector2 ownPosition)
+bool MeleeAttack::IsTargetInRange(AgentBase* target, const Elite::Vector2& ownPosition)
 {
 	return target->GetPosition().DistanceSquared(ownPosition) <= (m_AttackRange * m_AttackRange);
 }
