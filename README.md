@@ -1,1 +1,1 @@
-# Code files for project with grid partitioning
+# Code files for project with target acquisition done in cells
