@@ -262,6 +262,13 @@ so we have to do the checking in sync after updating agents
 
 
 AGENT SIZE:
+
+An interesting topic when using partitioning is agent size, what happens when very large agents exist along very small agents.
+First of all you would have to subtract the radiuses of the agents from the distance when looking for a target.
+Secondly, we are currently looking for a target based on the one cell an agent is in. But what if an agent is so big, it is located in multiple cells?
+If we take the center of the agent to determine which cell an agent is in, our target finding might find a smaller agent first because it is checking a closer cell, and then we determine the other cells aren't worth checking since they are further away. But if a large agent is present, it might actually be closer if you use the radius to compare. To fix this, you would have to store all the cells an agent is in, which might be very expensive since you need to keep track of all those cells, and then every frame you need to check for all of those cells if you are still in them all, and if you entered some other cell or not. You would probably only do these calculations for big agents, because they are not necessary for smaller ones.
+
+
 what if very large agents are present?
 without partitioning, subtract distance by own radius and radius of target
 with partitioning, will not always find closest target
@@ -271,7 +278,14 @@ with partitioning, will not always find closest target
 
 CROWD SIMULATION:
 
+Another important aspect to a battle simulator is how you make agents act realistically like they are individuals, but also make them share information between each other to increase performance or increase realism.
+These can be simple behaviors like flocking, which involves a combination of separation, cohesion and alignment to make agents behave like a flock of animals. This is still very realistic for humans as well. I've implemented separation in this battle simulator, it is a simple yet effective way to make agents spread out and try to surround the enemy. It also makes a group of agents not all go to the exact same position and look like just one agent.
+You can also add more behaviors, like a way to measure agent morale, and based on that morale, the agent would charge towards the enemy, or maybe even flee if it's too low. Morale could also be shared between agents that are near eachother.
+An implementation of crowd simulation that could increase performance would be flow fields. A flow field divides the world into a grid, and adds a direction to every cell. when an agent enters a cell, they would be directed towards that direction. This creates a nice flow of agents.
+Flow fields could be generated at the start of the application to run almost without a cost (if you have a grid for partitioning already). But in the case of an evolving battlefield (like in a battle simulator), it would need to be generated dynamically. This means you would generate it based on where large amounts of agents are. However this could cause issues if there are agents that stray away from their group, since they might not be targeted by anyone. So you would probably lower the influence the flow field has on the direction of the agent.You would also have to consider the impact on performance the flow field has, and decide whether it's worth it or not.
 
+Crowd simulation is also often described as a way to graphically represent a crowd, regarding animations for example.
+There are some instancing techniques like skinned instancing that allow you to use the same data for many animated agents.
 
 
 https://en.wikipedia.org/wiki/Crowd_simulation
@@ -290,6 +304,17 @@ can decrease neighbor radius to decrease spacing between agents
 
 
 
+PHYSICS/COLLISION:
+Physics are also important in battle simulators, since you don't want agents moving through eachother, or maybe you even want some other physics like ragdolls (like in TABS). For making physics optimized, pratitioning is again important, so you don't check for every collider if it collides with any collider anywhere. It is mostly the same as what I've already covered, so I won't go to deep into how to do it here.
+For my implementation, I just added some simple logic that uses the neighbors we already calculated and then checks if the agents are colliding (which is just a distance check since all agents are circles). If they are, we apply a force opposite to the direction towards this neighbor (similar to separation) but we make sure it nullifies the velocity if that velocity was in the direction towards the neighbor, resulting in no movement.
+
+The separation option also controls if collision is enabled or not, since not doing both, means we can skip finding neighbors, and measure only our target finding speeds.
+
+
+
+
+
+
 KNOWN ISSUES:
 When agents are outside the world bounds in any partitioning application, they will be counted as part of the closest cell/node. This will result in inaccurate target/neighbor finding.
 Agents won't always go to the closest target with partitioning, this is more prevalent when target acquisition is done in the cells.
@@ -303,6 +328,7 @@ Another way of finding targets could be implemented by using dynamic flow fields
 
 There are also probably a lot of inefficiencies that I'm doing since I'm not an expert programmer by far. I definitely learned a lot though and will probably do some follow-up research when I find the time.
 
+I also though about some concepts (like flow fields) but didn't implement them, so my assumptions might be wrong. I definitely wnat to try and implement them in the future though.
 
 
 Implement better crowd simulation
