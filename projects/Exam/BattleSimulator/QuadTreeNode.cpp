@@ -258,6 +258,8 @@ void QuadTreeNode::AddAgent(AgentBase* pAgent)
 	++m_TeamAgentCounts[pAgent->GetTeamId()];
 
 	pAgent->SetNode(this);
+
+	CheckSubDivide();
 }
 
 void QuadTreeNode::AddAgentToChild(AgentBase* pAgent)

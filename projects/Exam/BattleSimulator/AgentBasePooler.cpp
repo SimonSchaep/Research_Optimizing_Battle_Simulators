@@ -55,6 +55,9 @@ void AgentBasePooler::Update(float dt)
 				}
 			});
 
+		//m_pRoot->CheckSubDivide(); //needs to be done after checking cells, since otherwise nodes will try to divide their agents among their children, while the agent isn't supposed to be in any of those nodes anymore
+
+
 		
 	}
 	else //no multithreading
@@ -80,7 +83,6 @@ void AgentBasePooler::Update(float dt)
 		}
 	}
 
-	m_pRoot->CheckSubDivide(); //needs to be done after checking cells, since otherwise nodes will try to divide their agents among their children, while the agent isn't supposed to be in any of those nodes anymore
 
 	//since we are using multiple threads, the vector won't be sorted
 	//but we need it to be sorted for the disabling to work
