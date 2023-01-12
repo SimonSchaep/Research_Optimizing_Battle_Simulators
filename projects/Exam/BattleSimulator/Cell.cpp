@@ -68,7 +68,7 @@ void Cell::RemoveAgent(AgentBase* pAgent)
 
 void Cell::AddAgent(AgentBase* pAgent)
 {	
-	if (m_Agents.size() > m_AgentCount) //if enough nullptrs left in vector
+	if (int(m_Agents.size()) > m_AgentCount) //if enough nullptrs left in vector
 	{
 		m_Agents[m_AgentCount] = pAgent;
 	}
