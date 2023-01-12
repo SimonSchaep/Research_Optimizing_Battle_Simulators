@@ -171,7 +171,7 @@ Commercial battle simulators (like UEBS 2) are often running a lot of code on th
 https://www.pgroup.com/blogs/posts/cuda-threading-model.htm
 
 
-would be better on gpu
+would be better on gpu.
 but cpu is quicker to implement
 quite easy to multithread our most costly processes since already in for loop
 use parallel for instead
