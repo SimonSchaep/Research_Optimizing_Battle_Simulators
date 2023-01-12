@@ -121,7 +121,7 @@ void AgentBase::FindTarget(AgentBasePooler* pAgentBasePooler, bool findNeighbors
 		//find neighbors
 		else if (findNeighbors && agents[i]->GetTeamId() == m_TeamId && agents[i] != this && agents[i]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
 		{
-			if (m_Neighbors.size() > m_NeighborCount)
+			if (int(m_Neighbors.size()) > m_NeighborCount)
 			{
 				m_Neighbors[m_NeighborCount] = agents[i];
 			}
