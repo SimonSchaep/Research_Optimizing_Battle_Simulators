@@ -104,6 +104,8 @@ void AgentBase::CalculateVelocity(float dt, bool separation)
 		m_Velocity += modifier * ((m_Position - m_Neighbors[i]->GetPosition()) / max(m_Neighbors[i]->GetPosition().DistanceSquared(m_Position), minDistance));
 	}
 
+	m_Velocity.Normalize();
+
 	//collision
 	Elite::Vector2 collisionForce{};
 
