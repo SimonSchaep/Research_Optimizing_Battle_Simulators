@@ -4,6 +4,7 @@
 #include "Grid.h"
 #include "AgentBase.h"
 #include "Cell.h"
+#include <ppl.h>
 
 Grid::Grid(int rows, int cols, float cellSize)
 	: m_Rows{rows}, m_Cols{cols}, m_CellSize{cellSize}
@@ -26,12 +27,22 @@ Grid::~Grid()
 	}
 }
 
-void Grid::Update(float dt, AgentBasePooler* pAgentBasePooler)
+void Grid::Update(float dt, AgentBasePooler* pAgentBasePooler, bool isUsingMultithreading)
 {
-	for (Cell* pCell : m_CellPointers)
+	if (isUsingMultithreading) //multithreading
 	{
-		pCell->Update(dt, pAgentBasePooler);
+		concurrency::parallel_for(0, int(m_CellPointers.size()), [this, dt, pAgentBasePooler](int i)
+			{
+				m_CellPointers[i]->Update(dt, pAgentBasePooler);
+			});
 	}
+	else
+	{
+		for (Cell* pCell : m_CellPointers)
+		{
+			pCell->Update(dt, pAgentBasePooler);
+		}
+	}	
 }
 
 void Grid::Render() const

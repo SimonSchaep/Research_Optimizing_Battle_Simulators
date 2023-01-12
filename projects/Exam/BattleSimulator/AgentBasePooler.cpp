@@ -19,7 +19,7 @@ AgentBasePooler::AgentBasePooler(int size, const Elite::Vector2& worldDimensions
 	m_DisabledAgentsCount = size;
 
 
-	m_pGrid = new Grid{ 20, 20, worldDimensions.x / 20.f };
+	m_pGrid = new Grid{ 10, 10, worldDimensions.x / 10 };
 }
 
 AgentBasePooler::~AgentBasePooler()
@@ -102,7 +102,7 @@ void AgentBasePooler::Update(float dt)
 		m_EnabledAgentBasePointers[m_EnabledAgentsCount] = nullptr;
 	}
 
-	m_pGrid->Update(dt, this);
+	m_pGrid->Update(dt, this, m_UsingMultithreading);
 }
 
 void AgentBasePooler::Render(bool renderGrid)

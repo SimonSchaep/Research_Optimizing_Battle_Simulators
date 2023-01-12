@@ -14,7 +14,7 @@ public:
 	Grid(Grid&& other) = delete;
 	Grid& operator=(Grid&& other) = delete;
 
-	void Update(float dt, AgentBasePooler* pAgentBasePooler);
+	void Update(float dt, AgentBasePooler* pAgentBasePooler, bool isUsingMultithreading);
 	void Render()const;
 
 	const std::vector<Cell*>& GetCells()const { return m_CellPointers; };
