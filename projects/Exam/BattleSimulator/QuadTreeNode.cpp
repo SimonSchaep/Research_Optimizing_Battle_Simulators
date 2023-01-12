@@ -176,7 +176,7 @@ void QuadTreeNode::GetNearestNeighbors(AgentBase* pAgent, int ownTeamId, const E
 		const float dist{ m_Agents[i]->GetPosition().DistanceSquared(position) };
 		if (dist < neighborRadiusSquared)
 		{
-			if (neighbors.size() > neighborCount)
+			if (int(neighbors.size()) > neighborCount)
 			{
 				neighbors[neighborCount] = m_Agents[i];
 			}
@@ -245,7 +245,7 @@ void QuadTreeNode::AddAgent(AgentBase* pAgent)
 	}	
 
 	//add agent to self
-	if (m_Agents.size() > m_AgentCount) //if enough nullptrs left in vector
+	if (int(m_Agents.size()) > m_AgentCount) //if enough nullptrs left in vector
 	{
 		m_Agents[m_AgentCount] = pAgent;
 	}
