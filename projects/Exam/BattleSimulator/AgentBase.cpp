@@ -195,7 +195,7 @@ void AgentBase::CheckCell(AgentBasePooler* pAgentBasePooler, int row, int col, b
 		//find neighbor
 		else if (findNeighbors && agents[agentId]->GetTeamId() == m_TeamId && agents[agentId] != this && agents[agentId]->GetPosition().DistanceSquared(m_Position) <= neighborRadiusSquared)
 		{
-			if (m_Neighbors.size() > m_NeighborCount)
+			if (int(m_Neighbors.size()) > m_NeighborCount)
 			{
 				m_Neighbors[m_NeighborCount] = agents[agentId];
 			}
