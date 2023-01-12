@@ -49,6 +49,8 @@ This is a small research project on how to optimize a large amount of ai agents 
 Inspired by the millions of agents that some battle simulators can simulate. A good example of this is Ultimate Epic Battle Simulator (https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/), and its sequel Ultimate Epic Battle Simulator 2 (https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/).  
   
 There are of course many aspects to making a battle simulator, I will try to cover most of the important ones and implement some of them in a small battle simulator application.  
+
+There is an insane amount of depth to this, since almost all optimization techniques for games could be applied to a battle simulator. This reseach project won't go as in depth into all these topics as the references I learned from, so I suggest you take a look at the resources I linked at the bottom of this page if you are interested in a specific topic.
   
 All the code will be in separate branches depending on what partitioning technique I used. Since that made the most difference between implementations, all other things are implemented in all branches  
   
@@ -288,6 +290,8 @@ Crowd simulation is also often described as a way to graphically represent a cro
 There are some instancing techniques like skinned instancing that allow you to use the same data for many animated agents.  
 
 
+http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf
+https://developer.download.nvidia.com/SDK/10/direct3d/Source/SkinnedInstancing/doc/SkinnedInstancingWhitePaper.pdf
 https://en.wikipedia.org/wiki/Crowd_simulation
 explain different ways to simulate a crowd
 
@@ -306,12 +310,35 @@ can decrease neighbor radius to decrease spacing between agents
 
 PHYSICS/COLLISION:  
 Physics are also important in battle simulators, since you don't want agents moving through eachother, or maybe you even want some other physics like ragdolls (like in TABS). For making physics optimized, pratitioning is again important, so you don't check for every collider if it collides with any collider anywhere. It is mostly the same as what I've already covered, so I won't go to deep into how to do it here.  
-For my implementation, I just added some simple logic that uses the neighbors we already calculated and then checks if the agents are colliding (which is just a distance check since all agents are circles). If they are, we apply a force opposite to the direction towards this neighbor (similar to separation) but we make sure it nullifies the velocity if that velocity was in the direction towards the neighbor, resulting in no movement.  
+For my implementation, I just added some simple logic that uses the neighbors we already calculated and then checks if the agents are colliding (which is just a distance check since all agents are circles). If they are, we apply a force opposite to the direction towards this neighbor (similar to separation) with a magnitude equal to the velocity so that we make sure it nullifies the velocity if that velocity was in the direction towards the neighbor, resulting in no movement.  
+This does make the agents shake when they are surrounded by too many other agents cause they will collide with multiple agents and get pushed to one side, and the next frame to the other.
 
 The separation option also controls if collision is enabled or not, since not doing both, means we can skip finding neighbors, and measure only our target finding speeds.  
 
 
 
+PATHFINDING:
+I did not implement any pathfinding in this battle simulator, but will talk about it here.
+Pathfinding would be necessary when you want the battle to take place anywhere other than an open field, so this could be a castle, or a field with forests, big rock formations, cliffs...
+The simplest way to implement pathfinding would be using the A* algorithm, this algorithm finds the shortest path from one node in a graph to another. This could be applied to our battle simulator using the grid and quad tree that we use when partitioning. Every cell could be marked as obstacle or not, so if there is an obstacle inside the cell, agents will avoid it. You could also mark a cell as obstacle when it contains a certain amount of agents, this would make other agents avoid places where there are already many agents.
+There would need to be some adaptations to the grid/tree, since every cell needs to know its neighboring cells. With simple grid partitioning this would be simple, since the grid is static, we could just set the neighbors of a cell in each cell at the start of the application.
+With quad partitioning this would be more tricky, since it can change throughout the simulation, which means the neighboring nodes would change aswell. One node could also theoretically have hundreds of neighboring nodes if it's a big node, neighboring many smaller ones, however that last bit shouldn't be an issue for the algorithm.
+So to check which nodes are neighbors in a quad tree, you would loop over all nodes, for every node, and check if any borders are shared, if there are, it is a neighbor.
+This would be very inefficient though. A way to optimize this would be to only recalculate neighbors whenever you split a node, or combine one. And only check it for the node that was split/combined and all its old neighbors.
+
+Using a good heuristic with A* is also very important. Without heuristic, A* is the same as dijkstra's algorithm, and it will look in all directions for the shortest path. A heuristic leads the algorithm towards the goal destination, to avoid checking paths that aren't going to be the shortest anyway.
+
+
+Another way to do pathfinding and make the agents act more realistic as a bonus, is by using ant colony optimization (ACO).
+ACO is inspired by how real ants find solutions to problems, like finding a shortest path. The idea is that there are many "ants", in our case agents, that move randomly towards their goal, while on their way, they leave behind information that indicates how efficient their path is. The next agents can then decide which way to go based on this information, until they are all taking the shortest path.
+You would have to put a timer on how long the information should stay relevant to make sure it works in a dynamic environment like a battle simulator.  
+
+
+When using flow fields for crowd simulation, the flow fields could also be used for pathfinding. But then you would have to add another flow field that contains information on where obstacles are and combine it with the dynamic one that is used for crowd simulation.
+
+
+https://www.redblobgames.com/pathfinding/a-star/introduction.html
+http://www.scholarpedia.org/article/Ant_colony_optimization
 
 
 
