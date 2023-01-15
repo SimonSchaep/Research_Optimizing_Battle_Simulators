@@ -170,6 +170,9 @@ There are some more issues that will emerge later on when we use partitioning, b
 It is important to also mention the gpu here. Gpus also use parallelism, but they have many more cores compared to a cpu, and also more threads per core. This allows them to run code a lot faster than a cpu, they are however more limited in memory.  
 Commercial battle simulators (like UEBS 2) are often running a lot of code on the gpu which drastically improves performance and allows for many more agents to be simulated. It is however a lot more complicated than cpu programming, so I won't implement it in this project.  
 
+
+Note that the way I implement multithreading here is not fully optimal, since as you can see on this image, the cpu is still not 100% utilized. There are also other cool things you can do with multithreading.
+
 https://www.pgroup.com/blogs/posts/cuda-threading-model.htm  
 
 
