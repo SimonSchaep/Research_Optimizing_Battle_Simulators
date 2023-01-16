@@ -3,7 +3,7 @@
 
 class Grid;
 
-class AgentBasePooler
+class AgentBasePooler final
 {
 public:
 	AgentBasePooler(int size, const Elite::Vector2& worldDimensions);

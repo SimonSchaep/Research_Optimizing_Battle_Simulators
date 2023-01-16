@@ -1,7 +1,7 @@
 #pragma once
 class AgentBase;
 
-class Cell
+class Cell final
 {
 public:
 	Cell();

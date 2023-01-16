@@ -2,7 +2,7 @@
 class AgentBase;
 class Cell;
 
-class Grid
+class Grid final
 {
 public:
 	Grid(int rows, int cols, float cellSize);
