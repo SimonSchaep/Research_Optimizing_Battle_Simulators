@@ -1,5 +1,5 @@
 #pragma once
-class Health
+class Health final
 {
 public:
 	Health();

@@ -1,7 +1,7 @@
 #pragma once
 class AgentBase;
 
-class QuadTreeNode
+class QuadTreeNode final
 {
 public:
 	QuadTreeNode(const Elite::Vector2& minBounds, const Elite::Vector2& maxBounds);
