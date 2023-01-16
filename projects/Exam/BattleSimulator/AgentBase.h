@@ -5,7 +5,7 @@
 class AgentBasePooler;
 class Cell;
 
-class AgentBase
+class AgentBase final
 {
 public:
 	AgentBase();

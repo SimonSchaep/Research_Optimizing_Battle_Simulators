@@ -2,7 +2,7 @@
 class AgentBase;
 class AgentBasePooler;
 
-class Cell
+class Cell final
 {
 public:
 	Cell(int id);
