@@ -2,7 +2,7 @@
 
 class AgentBase;
 
-class MeleeAttack
+class MeleeAttack final
 {
 public:
 	MeleeAttack();

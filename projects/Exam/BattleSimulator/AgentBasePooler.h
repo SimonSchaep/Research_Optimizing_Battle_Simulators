@@ -1,7 +1,7 @@
 #pragma once
 #include "AgentBase.h"
 
-class AgentBasePooler
+class AgentBasePooler final
 {
 public:
 	AgentBasePooler(int size);

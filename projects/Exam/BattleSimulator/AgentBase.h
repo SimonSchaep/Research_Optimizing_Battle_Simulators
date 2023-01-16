@@ -4,7 +4,7 @@
 
 class AgentBasePooler;
 
-class AgentBase
+class AgentBase final
 {
 public:
 	AgentBase();
