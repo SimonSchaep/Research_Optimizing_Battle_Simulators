@@ -44,7 +44,7 @@ we need to simulate a crowd of soldiers, attacking another crowd of soldiers. Th
 
 
 
-INTRODUCTION:  
+# Introduction  
 This is a small research project on how to optimize a large amount of ai agents in a battle simulator.  
 Inspired by the millions of agents that some battle simulators can simulate. A good example of this is Ultimate Epic Battle Simulator (https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/), and its sequel Ultimate Epic Battle Simulator 2 (https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/).  
   
@@ -62,7 +62,7 @@ explain pathfinding
 
 
 
-BASE APPLICATION:  
+# Base Application  
 
 So, for our own battle simulator that we'll be using to test some optimization techniques, we'll be working in c++ (since it's fast) and using a framework that has a camera, UI and allows us to draw. It also has some basic structs like vector2. We won't be using any in-built physics systems or ai pathfinding since those can be very expensive and I want to explore all the important aspects of optimizing a battle simulator.  
   
@@ -116,7 +116,7 @@ this helps with measuring
 
 
 
-MULTITHREADING:  
+# Multithreading  
 
 One of the most efficient ways of optimizing any application is using more than one thread of your cpu. The idea is that you run tasks on multiple threads simultaneously. This can multiply the speed of an applications by a lot, depending on how many cores your cpu has.  
 We will use multithreading on the biggest bottleneck of the battlesimulator, updating agents. This is relatively easy since we are already doing this in a for loop, we can use concurrency::parallel_for.  
@@ -192,7 +192,7 @@ multithreading gives a very high performance boost
 
 
 
-PARTITIONING:  
+# Partitioning  
 
 One of the biggest bottlenecks in our simulator is still finding the closest target for each of our agents, we are checking all of the enabled agents in every agent update, which means increasing the amount of agents exponentially increases the time spent searching for the closest target.  
 A solution would be to make sure the agents only check agents that are reasonably close to them. How can we know which agents should be checked? By using partitioning.  
@@ -266,7 +266,7 @@ so we have to do the checking in sync after updating agents
 
 
 
-AGENT SIZE:  
+# Agent Size  
 
 An interesting topic when using partitioning is agent size, what happens when very large agents exist along very small agents.  
 First of all you would have to subtract the radiuses of the agents from the distance when looking for a target.  
@@ -281,7 +281,7 @@ with partitioning, will not always find closest target
 
 
 
-CROWD SIMULATION:  
+# Crowd Simulation  
 
 Another important aspect to a battle simulator is how you make agents act realistically like they are individuals, but also make them share information between each other to increase performance or increase realism.  
 These can be simple behaviors like flocking, which involves a combination of separation, cohesion and alignment to make agents behave like a flock of animals. This is still very realistic for humans as well. I've implemented separation in this battle simulator, it is a simple yet effective way to make agents spread out and try to surround the enemy. It also makes a group of agents not all go to the exact same position and look like just one agent.  
@@ -311,7 +311,7 @@ can decrease neighbor radius to decrease spacing between agents
 
 
 
-PHYSICS/COLLISION:  
+# Physics/Collision  
 Physics are also important in battle simulators, since you don't want agents moving through eachother, or maybe you even want some other physics like ragdolls (like in TABS). For making physics optimized, pratitioning is again important, so you don't check for every collider if it collides with any collider anywhere. It is mostly the same as what I've already covered, so I won't go to deep into how to do it here.  
 For my implementation, I just added some simple logic that uses the neighbors we already calculated and then checks if the agents are colliding (which is just a distance check since all agents are circles). If they are, we apply a force opposite to the direction towards this neighbor (similar to separation) with a magnitude equal to the velocity so that we make sure it nullifies the velocity if that velocity was in the direction towards the neighbor, resulting in no movement.  
 This does make the agents shake when they are surrounded by too many other agents cause they will collide with multiple agents and get pushed to one side, and the next frame to the other.
@@ -320,7 +320,7 @@ The separation option also controls if collision is enabled or not, since not do
 
 
 
-PATHFINDING:
+# Pathfinding
 I did not implement any pathfinding in this battle simulator, but will talk about it here.
 Pathfinding would be necessary when you want the battle to take place anywhere other than an open field, so this could be a castle, or a field with forests, big rock formations, cliffs...
 The simplest way to implement pathfinding would be using the A* algorithm, this algorithm finds the shortest path from one node in a graph to another. This could be applied to our battle simulator using the grid and quad tree that we use when partitioning. Every cell could be marked as obstacle or not, so if there is an obstacle inside the cell, agents will avoid it. You could also mark a cell as obstacle when it contains a certain amount of agents, this would make other agents avoid places where there are already many agents.
@@ -345,14 +345,14 @@ http://www.scholarpedia.org/article/Ant_colony_optimization
 
 
 
-KNOWN ISSUES:
+# Known Issues:
 When agents are outside the world bounds in any partitioning application, they will be counted as part of the closest cell/node. This will result in inaccurate target/neighbor finding.  
 Agents won't always go to the closest target with partitioning, this is more prevalent when target acquisition is done in the cells.  
 Low fps and/or high timescale will cause agents to be shot away from eachother.  
 Agents will overlap when in combat even when separation is on.  
 
 
-FUTURE WORK:  
+# Future Work:  
 There are definitely a lot more improvements that can be made. Like using the gpu for updating agents, implementing better collision algorithms or using more realistic crowd simulation algorithms.  
 Another way of finding targets could be implemented by using dynamic flow fields, that direct agents towards eachother based on where they are located. There would need to be different flow fields for every team, and dynamically generating a flow field might be expensive. This would have to be tested.  
 
