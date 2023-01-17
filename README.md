@@ -238,6 +238,7 @@ We first check the node that our agent is in, we go as deep as possible, and try
 
 Conclusion:  
 Overall, grid partitioning is the easiest to implement and has almost the same performance when units are spread out. But when units are closer together quad tree partitioning should be more efficient since it divides those cells with many agents into smaller ones. However I wasn't able to replicate this, since the quad tree goes much deeper when agents are close together, performance actually decreases very quickly. Maybe a different target finding algorithm would give different results?
+Or perhaps on bigger world sizes a quad tree will be more performant?
 Doing the target finding partly in the cells gives a significant boost to performance, but this technique can probably be improved a lot when explored further. Maybe it can even be combined with a quad tree instead of grid?  
 
 
