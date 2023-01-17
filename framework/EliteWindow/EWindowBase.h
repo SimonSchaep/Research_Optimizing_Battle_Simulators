@@ -15,7 +15,7 @@ namespace Elite
 	//=== Window Parameters ===
 	struct WindowParams
 	{
-		std::string windowTitle = "AI Elite Framework";
+		std::string windowTitle = "Battle Simulator";
 		unsigned int width = 901;
 		unsigned int height = 451;
 		bool isResizable = false;
