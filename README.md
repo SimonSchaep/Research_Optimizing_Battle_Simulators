@@ -218,6 +218,7 @@ Usually with partitioning, only the same cell as the agent is checked, or the su
 Own experimentation  
 I also made a variant of the simple grid partitioning where I tried to improve performance even more.  
 All agents in a cell, will generally have to look through the agents of the same cell to find a target, so my idea was to instead loop over every cell and find the closest cell with enemy agents for each team. Then, when finding a target for an agent, only loop over the agents in the closest cell of our own cell according to the team we are in. This way, we don't have to find the closest cell for every agent.  
+After implementing this you can see that the agent update is using almost no cpu time, it is all moved to the cell update.
 This technique gives a performance boost when there are not that many cells. but when there are more cells, it actually decreases performance since it has to loop over all the cells every frame.  
 
 
@@ -236,8 +237,8 @@ We first check the node that our agent is in, we go as deep as possible, and try
 
 
 Conclusion:  
-Overall, grid partitioning is the easiest to implement and has almost the same performance when units are spread out. But when units are closer together quad tree partitioning is more efficient since it divides those cells with many agents into smaller ones.  
-Doing the target finding partly in the cells can give a small boost to performance, but this technique can probably be improved a lot when explored further. Maybe it can even be combined with a quad tree instead of grid?  
+Overall, grid partitioning is the easiest to implement and has almost the same performance when units are spread out. But when units are closer together quad tree partitioning should be more efficient since it divides those cells with many agents into smaller ones. However I wasn't able to replicate this, since the quad tree goes much deeper when agents are close together, performance actually decreases very quickly. Maybe a different target finding algorithm would give different results?
+Doing the target finding partly in the cells gives a significant boost to performance, but this technique can probably be improved a lot when explored further. Maybe it can even be combined with a quad tree instead of grid?  
 
 
 explain different kinds of partitioning and what they're good for  
