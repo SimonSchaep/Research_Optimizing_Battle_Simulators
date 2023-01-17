@@ -33,6 +33,8 @@ void Cell::Update(float dt, AgentBasePooler* pAgentBasePooler)
 	int col{};
 
 	int range{};
+	const int minRange{ 3 };
+	const int maxRange{ 100 };
 
 	bool stop{};
 
@@ -41,7 +43,7 @@ void Cell::Update(float dt, AgentBasePooler* pAgentBasePooler)
 	//check self
 	CheckCell(pAgentBasePooler, stop, row, col);
 
-	while (range < 100 && !stop)
+	while (range < maxRange && (!stop || range < minRange))
 	{
 		++range;
 
