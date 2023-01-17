@@ -16,7 +16,6 @@ public:
 	AgentBase& operator=(AgentBase&& other) = delete;
 	
 	void Enable(int teamId, const Elite::Vector2& position, float radius, const Elite::Color& color, float healthAmount, float damage, float attackSpeed, float attackRange, float speed);
-	void Disable();
 	bool GetIsEnabled() { return m_IsEnabled; };
 
 	const Elite::Vector2& GetPosition() { return m_Position; };
