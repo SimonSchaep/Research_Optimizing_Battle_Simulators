@@ -37,7 +37,7 @@ private:
 
 	std::vector<int> m_TeamAgentCounts{};
 
-	const int m_MaxAgentCount{20};
+	const int m_MaxAgentCount{10};
 
 	std::vector<QuadTreeNode*> m_ChildNodes{};
 
