@@ -1,6 +1,6 @@
 # Optimizing Battle Simulators  
   
-<img src="Images/Overview.gif" width="300" height="300">
+
 ![Test](Images/Overview.gif)
 ## Introduction  
   
