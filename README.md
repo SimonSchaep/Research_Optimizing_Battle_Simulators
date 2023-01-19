@@ -1,7 +1,7 @@
 # Optimizing Battle Simulators  
   
   
-![video](https://youtu.be/I-4NvblmSD0)
+![This is an image](images/grid.png)
 ## Introduction  
   
 This is a small research project on how to optimize a large amount of ai agents in a battle simulator.  
