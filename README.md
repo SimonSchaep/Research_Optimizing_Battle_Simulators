@@ -309,6 +309,7 @@ After all those tests I did a few extra ones:
 - B3 test, but with double the world size, to test the impact of a bigger world
   
 Results: (.xlsx file is also included in main)
+  
 ![](Images/measurements.png)  
   
   
@@ -316,39 +317,53 @@ Results: (.xlsx file is also included in main)
 First of all, it’s obvious that without optimizations, the battle simulator runs quite poorly.  
 With a low count of agents it actually still runs fine, but fps very quickly goes down when more agents are on the battlefield. This is an indicator that performance exponentially decreases.  
 Performance is also better during combat, since agents start dying very quickly, which reduces the amount that have to be updated.  
+  
 ![](Images/Graphs/nooptimization.png)  
+  
 This stays the same when using multithreading, but overall performance is increased.  
+  
 ![](Images/Graphs/multithreading.png)  
+  
 When using separation, performance stays the same during combat, since it takes longer for them to find a target, because they can’t move through each other.  
+  
 ![](Images/Graphs/separation.png)  
 
 For grid partitioning without multithreading or separation, we can see a notable increase in performance when there are many agents, similar to what multithreading did.
 There is also quite a big difference when using different grid sizes. At the start of the simulation, the 100x100 grid performs a lot worse compared to the others. But during combat it actually performs the best.  
+  
 ![](Images/Graphs/GridStartSimulation.png)
 ![](Images/Graphs/gridcombat.png)  
+  
 This stays true when using multithreading and separation  
 
 Similar results can be found when doing target acquisition in the grid.
 But the overall performance is increased, especially with a higher number of agents. This means that our target finding is becoming less exponential.  
+  
 ![](Images/Graphs/targetfindingstart.png)
 ![](Images/Graphs/targetfindingcombat.png)  
+  
 Note that when using multithreading and a 100x100 grid, the performance with just a grid is identical to doing target finding in the grid. I have no idea why but it is worth mentioning.
 
 For the Quad tree implementation, we can see overall improved results over the grid, but not when we compare it to the grid with target finding done in the grid.
 This is mostly since performance goes down during combat, when agents get bunched up together.
 This is contrary to what I expected, since a quad tree is supposed to perform better when agents are less spread across the world.  
+  
 ![](Images/Graphs/quadtreestart.png)
 ![](Images/Graphs/quadtreecombat.png)  
 
 Increasing world size seems to increase the performance on average as well, but it’s not consistent and the difference is also not a lot. But experimenting with different sizes can definitely have some impact on framerate.  
+  
 ![](Images/Graphs/worldsize.png)  
   
   
 #### Conclusion:
 When multithreading and separation are enabled, and we compare every partitioning technique during combat, we can see that the quad tree and grid partitioning are a big improvement compared to using no partitioning. A grid seems best for a lower amount of agents, and a quad tree performs better for a higher amount of agents.
 Using a grid and doing target finding in the grid seems to be the best performing technique overall.  
+  
 ![](Images/Graphs/combined.png)  
+  
 This trend continues even when using a very large number of agents.  
+  
 ![](Images/Graphs/bigbattle.png)  
   
   
