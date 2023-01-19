@@ -201,7 +201,7 @@ There are many different kinds of partitioning. The simplest is using a grid to 
 I will first explain how I implemented gridpartitioning.  
 
 
-##### Simple grid partitioning  
+#### Simple grid partitioning  
 We have a grid class and a cell class.  
 The grid contains a vector of cells, it also contains functions to get specific cells (based on position and row/column).  
 A cell contains a vector that holds the agents in that cell.  
@@ -215,14 +215,14 @@ Next up, finding the cells that we need to check.
 Usually with partitioning, only the same cell as the agent is checked, or the surrounding cells in a certain radius. In our case however, it depends on where our agent isq relative to the closest target. The target might be in the same cell, in which case we only need to check that one, but it could also be in the furthest place possible, in which case we need to check all cells. For this implementation, we first check our own cell, then the cells surrounding our own cell, and then increase the range at which we search for a target as long as we haven't found one yet. This method won't be perfectly accurate, but the inaccuracy is barely noticable and performance is heavily improved.  
 
 
-##### Own experimentation  
+#### Own experimentation  
 I also made a variant of the simple grid partitioning where I tried to improve performance even more.  
 All agents in a cell, will generally have to look through the agents of the same cell to find a target, so my idea was to instead loop over every cell and find the closest cell with enemy agents for each team. Then, when finding a target for an agent, only loop over the agents in the closest cell of our own cell according to the team we are in. This way, we don't have to find the closest cell for every agent.  
 After implementing this you can see that the agent update is using almost no cpu time, it is all moved to the cell update.
 This technique gives a performance boost when there are not that many cells. but when there are more cells, it actually decreases performance since it has to loop over all the cells every frame.  
 
 
-##### Quad tree partitioning  
+#### Quad tree partitioning  
 A quad tree is a data structure where there is a root, this root has four (quad) children, every child node can have children of their own, which in turn have children. A child node can also be a leaf, which means it doesn't have any children but instead contains data (in our case a vector of agents).  
 This structure can be used for partitioning instead of a grid. The biggest advantage is when agents are very close to eachother, and only occupy a small part of the world, since with a quad tree, there will be more nodes (comparable to cells) where there are many agents, and less where there are few. This makes looking for other agents a lot faster, but adding and removing agents from a node will be a lot slower because a node might need to subdivide into more nodes when there are too many agents, or it might need to merge with other children when there are too few agents.  
 The architecture is still quite simple since there is only the need for one class, a quadTreeNode class, since the root, leaves and children are basically the same.  
@@ -236,7 +236,7 @@ We first check the node that our agent is in, we go as deep as possible, and try
 
 
 
-##### Conclusion:  
+#### Conclusion:  
 Overall, grid partitioning is the easiest to implement and has almost the same performance when units are spread out. But when units are closer together quad tree partitioning should be more efficient since it divides those cells with many agents into smaller ones. However I wasn't able to replicate this, since the quad tree goes much deeper when agents are close together, performance actually decreases very quickly. Maybe a different target finding algorithm would give different results?
 Or perhaps on bigger world sizes a quad tree will be more performant?
 Doing the target finding partly in the cells gives a significant boost to performance, but this technique can probably be improved a lot when explored further. Maybe it can even be combined with a quad tree instead of grid?  
@@ -383,36 +383,36 @@ adding and removing agents to cells/resizing grid, causes asynchronisation, this
 
 ## Sources
 
-##### Games that gave me inspiration:
+#### Games that gave me inspiration:
 https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/
 https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/
 
 
-##### Cool videos:
+#### Cool videos:
 https://www.youtube.com/watch?v=2qfkEUV1w1I
 https://www.youtube.com/watch?v=kpojDPlIjdQ
 
 
-##### Object pooling:
+#### Object pooling:
 http://gameprogrammingpatterns.com/object-pool.html  
 
 
-##### GPU multithreading:
+#### GPU multithreading:
 https://www.pgroup.com/blogs/posts/cuda-threading-model.htm  
 
 
-##### Partitioning:
+#### Partitioning:
 https://gameprogrammingpatterns.com/spatial-partition.html
 http://homepage.divms.uiowa.edu/~kvaradar/sp2012/daa/ann.pdf
 
 
-##### Crowd simulation:
+#### Crowd simulation:
 http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf
-https://en.wikipedia.org/wiki/Crowd_simulation
-Graphical:
+https://en.wikipedia.org/wiki/Crowd_simulation  
+##### Graphical:  
 https://developer.download.nvidia.com/SDK/10/direct3d/Source/SkinnedInstancing/doc/SkinnedInstancingWhitePaper.pdf
 
 
-##### Pathfinding:
+#### Pathfinding:
 https://www.redblobgames.com/pathfinding/a-star/introduction.html
 http://www.scholarpedia.org/article/Ant_colony_optimization
