@@ -382,37 +382,37 @@ adding and removing agents to cells/resizing grid, causes asynchronisation, this
 
 
 ## Sources
-
-#### Games that gave me inspiration:
-https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/
-https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/
-
-
-#### Cool videos:
-https://www.youtube.com/watch?v=2qfkEUV1w1I
-https://www.youtube.com/watch?v=kpojDPlIjdQ
-
-
-#### Object pooling:
+  
+#### Games that gave me inspiration:  
+https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/  
+https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/  
+  
+  
+#### Cool videos:  
+https://www.youtube.com/watch?v=2qfkEUV1w1I  
+https://www.youtube.com/watch?v=kpojDPlIjdQ  
+  
+  
+#### Object pooling:  
 http://gameprogrammingpatterns.com/object-pool.html  
-
-
-#### GPU multithreading:
+  
+  
+#### GPU multithreading:  
 https://www.pgroup.com/blogs/posts/cuda-threading-model.htm  
-
-
-#### Partitioning:
-https://gameprogrammingpatterns.com/spatial-partition.html
-http://homepage.divms.uiowa.edu/~kvaradar/sp2012/daa/ann.pdf
-
-
-#### Crowd simulation:
-http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf
+  
+  
+#### Partitioning:  
+https://gameprogrammingpatterns.com/spatial-partition.html  
+http://homepage.divms.uiowa.edu/~kvaradar/sp2012/daa/ann.pdf  
+  
+  
+#### Crowd simulation:  
+http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf  
 https://en.wikipedia.org/wiki/Crowd_simulation  
 ##### Graphical:  
-https://developer.download.nvidia.com/SDK/10/direct3d/Source/SkinnedInstancing/doc/SkinnedInstancingWhitePaper.pdf
-
-
-#### Pathfinding:
-https://www.redblobgames.com/pathfinding/a-star/introduction.html
-http://www.scholarpedia.org/article/Ant_colony_optimization
+https://developer.download.nvidia.com/SDK/10/direct3d/Source/SkinnedInstancing/doc/SkinnedInstancingWhitePaper.pdf  
+  
+  
+#### Pathfinding:  
+https://www.redblobgames.com/pathfinding/a-star/introduction.html  
+http://www.scholarpedia.org/article/Ant_colony_optimization  
