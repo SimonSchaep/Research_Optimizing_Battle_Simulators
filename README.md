@@ -17,8 +17,11 @@ All the code will be in separate branches depending on what partitioning techniq
 If you want to run the code you need to make sure you download the external dependencies and add them to the same path the folder with the source code is in.
   
 Folder structure:  
+  
 ![](Images/folderstructure.png)  
+  
 Contents of source:  
+  
 ![](Images/sourcecontents.png)  
   
   
@@ -124,8 +127,11 @@ Commercial battle simulators (like UEBS 2) are often running almost all code on 
 Note that the way I implement multithreading here is not fully optimal, since as you can see on this image, the cpu is still not 100% utilized. There are also other ways to do more efficient multithreading.  
     
 No multithreading:  
+  
 ![](Images/nomultithreading.png)  
+  
 Multithreading:  
+  
 ![](Images/multithreading.png)  
   
   
@@ -196,7 +202,9 @@ Finding the closest target can be more difficult, since you can't just look at t
 First, the node that the agent is in, is checked, we go as deep as possible and try to find a target. When a target is found, it is stored as the current closest target. Then we go on and check other nodes.  
 To avoid going through all nodes and all agents, we first check if a node is worth visiting by checking if the closest position within the bounds of that node is closer to the agent than the current closest target. If this is the case there is a chance that a closer target is within this node.  
   
-CPU time overview: ![](Images/quadpartitioning.png)  
+CPU time overview:  
+  
+![](Images/quadpartitioning.png)  
   
   
   
