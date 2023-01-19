@@ -44,7 +44,7 @@ we need to simulate a crowd of soldiers, attacking another crowd of soldiers. Th
 
 
 
-# Introduction  
+## Introduction  
 This is a small research project on how to optimize a large amount of ai agents in a battle simulator.  
 Inspired by the millions of agents that some battle simulators can simulate. A good example of this is Ultimate Epic Battle Simulator (https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/), and its sequel Ultimate Epic Battle Simulator 2 (https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/).  
   
@@ -62,7 +62,7 @@ explain pathfinding
 
 
 
-# Base Application  
+## Base Application  
 
 So, for our own battle simulator that we'll be using to test some optimization techniques, we'll be working in c++ (since it's fast) and using a framework that has a camera, UI and allows us to draw. It also has some basic structs like vector2. We won't be using any in-built physics systems or ai pathfinding since those can be very expensive and I want to explore all the important aspects of optimizing a battle simulator.  
   
@@ -116,7 +116,7 @@ this helps with measuring
 
 
 
-# Multithreading  
+## Multithreading  
 
 One of the most efficient ways of optimizing any application is using more than one thread of your cpu. The idea is that you run tasks on multiple threads simultaneously. This can multiply the speed of an applications by a lot, depending on how many cores your cpu has.  
 We will use multithreading on the biggest bottleneck of the battlesimulator, updating agents. This is relatively easy since we are already doing this in a for loop, we can use concurrency::parallel_for.  
@@ -192,7 +192,7 @@ multithreading gives a very high performance boost
 
 
 
-# Partitioning  
+## Partitioning  
 
 One of the biggest bottlenecks in our simulator is still finding the closest target for each of our agents, we are checking all of the enabled agents in every agent update, which means increasing the amount of agents exponentially increases the time spent searching for the closest target.  
 A solution would be to make sure the agents only check agents that are reasonably close to them. How can we know which agents should be checked? By using partitioning.  
@@ -201,7 +201,7 @@ There are many different kinds of partitioning. The simplest is using a grid to 
 I will first explain how I implemented gridpartitioning.  
 
 
-Simple grid partitioning  
+##### Simple grid partitioning  
 We have a grid class and a cell class.  
 The grid contains a vector of cells, it also contains functions to get specific cells (based on position and row/column).  
 A cell contains a vector that holds the agents in that cell.  
@@ -215,14 +215,14 @@ Next up, finding the cells that we need to check.
 Usually with partitioning, only the same cell as the agent is checked, or the surrounding cells in a certain radius. In our case however, it depends on where our agent isq relative to the closest target. The target might be in the same cell, in which case we only need to check that one, but it could also be in the furthest place possible, in which case we need to check all cells. For this implementation, we first check our own cell, then the cells surrounding our own cell, and then increase the range at which we search for a target as long as we haven't found one yet. This method won't be perfectly accurate, but the inaccuracy is barely noticable and performance is heavily improved.  
 
 
-Own experimentation  
+##### Own experimentation  
 I also made a variant of the simple grid partitioning where I tried to improve performance even more.  
 All agents in a cell, will generally have to look through the agents of the same cell to find a target, so my idea was to instead loop over every cell and find the closest cell with enemy agents for each team. Then, when finding a target for an agent, only loop over the agents in the closest cell of our own cell according to the team we are in. This way, we don't have to find the closest cell for every agent.  
 After implementing this you can see that the agent update is using almost no cpu time, it is all moved to the cell update.
 This technique gives a performance boost when there are not that many cells. but when there are more cells, it actually decreases performance since it has to loop over all the cells every frame.  
 
 
-Quad tree partitioning  
+##### Quad tree partitioning  
 A quad tree is a data structure where there is a root, this root has four (quad) children, every child node can have children of their own, which in turn have children. A child node can also be a leaf, which means it doesn't have any children but instead contains data (in our case a vector of agents).  
 This structure can be used for partitioning instead of a grid. The biggest advantage is when agents are very close to eachother, and only occupy a small part of the world, since with a quad tree, there will be more nodes (comparable to cells) where there are many agents, and less where there are few. This makes looking for other agents a lot faster, but adding and removing agents from a node will be a lot slower because a node might need to subdivide into more nodes when there are too many agents, or it might need to merge with other children when there are too few agents.  
 The architecture is still quite simple since there is only the need for one class, a quadTreeNode class, since the root, leaves and children are basically the same.  
@@ -236,7 +236,7 @@ We first check the node that our agent is in, we go as deep as possible, and try
 
 
 
-Conclusion:  
+##### Conclusion:  
 Overall, grid partitioning is the easiest to implement and has almost the same performance when units are spread out. But when units are closer together quad tree partitioning should be more efficient since it divides those cells with many agents into smaller ones. However I wasn't able to replicate this, since the quad tree goes much deeper when agents are close together, performance actually decreases very quickly. Maybe a different target finding algorithm would give different results?
 Or perhaps on bigger world sizes a quad tree will be more performant?
 Doing the target finding partly in the cells gives a significant boost to performance, but this technique can probably be improved a lot when explored further. Maybe it can even be combined with a quad tree instead of grid?  
@@ -268,7 +268,7 @@ so we have to do the checking in sync after updating agents
 
 
 
-# Agent Size  
+## Agent Size  
 
 An interesting topic when using partitioning is agent size, what happens when very large agents exist along very small agents.  
 First of all you would have to subtract the radiuses of the agents from the distance when looking for a target.  
@@ -283,7 +283,7 @@ with partitioning, will not always find closest target
 
 
 
-# Crowd Simulation  
+## Crowd Simulation  
 
 Another important aspect to a battle simulator is how you make agents act realistically like they are individuals, but also make them share information between each other to increase performance or increase realism.  
 These can be simple behaviors like flocking, which involves a combination of separation, cohesion and alignment to make agents behave like a flock of animals. This is still very realistic for humans as well. I've implemented separation in this battle simulator, it is a simple yet effective way to make agents spread out and try to surround the enemy. It also makes a group of agents not all go to the exact same position and look like just one agent.  
@@ -313,7 +313,7 @@ can decrease neighbor radius to decrease spacing between agents
 
 
 
-# Physics/Collision  
+## Physics/Collision  
 Physics are also important in battle simulators, since you don't want agents moving through eachother, or maybe you even want some other physics like ragdolls (like in TABS). For making physics optimized, pratitioning is again important, so you don't check for every collider if it collides with any collider anywhere. It is mostly the same as what I've already covered, so I won't go to deep into how to do it here.  
 For my implementation, I just added some simple logic that uses the neighbors we already calculated and then checks if the agents are colliding (which is just a distance check since all agents are circles). If they are, we apply a force opposite to the direction towards this neighbor (similar to separation) with a magnitude equal to the velocity so that we make sure it nullifies the velocity if that velocity was in the direction towards the neighbor, resulting in no movement.  
 This does make the agents shake when they are surrounded by too many other agents cause they will collide with multiple agents and get pushed to one side, and the next frame to the other.
@@ -322,7 +322,7 @@ The separation option also controls if collision is enabled or not, since not do
 
 
 
-# Pathfinding
+## Pathfinding
 I did not implement any pathfinding in this battle simulator, but will talk about it here.
 Pathfinding would be necessary when you want the battle to take place anywhere other than an open field, so this could be a castle, or a field with forests, big rock formations, cliffs...
 The simplest way to implement pathfinding would be using the A* algorithm, this algorithm finds the shortest path from one node in a graph to another. This could be applied to our battle simulator using the grid and quad tree that we use when partitioning. Every cell could be marked as obstacle or not, so if there is an obstacle inside the cell, agents will avoid it. You could also mark a cell as obstacle when it contains a certain amount of agents, this would make other agents avoid places where there are already many agents.
@@ -347,14 +347,21 @@ http://www.scholarpedia.org/article/Ant_colony_optimization
 
 
 
-# Known Issues:
+## Performance Tests Analysis
+The purpose of these measurements isn't to super accurately know which impact every technique has, but more so to get an idea of which situations each technique might be the best choice.
+
+Not all results fully make sense, maybe the way I measure is flawed?
+
+
+
+## Known Issues:
 When agents are outside the world bounds in any partitioning application, they will be counted as part of the closest cell/node. This will result in inaccurate target/neighbor finding.  
 Agents won't always go to the closest target with partitioning, this is more prevalent when target acquisition is done in the cells.  
 Low fps and/or high timescale will cause agents to be shot away from eachother.  
 Agents will overlap when in combat even when separation is on.  
 
 
-# Future Work:  
+## Future Work:  
 There are definitely a lot more improvements that can be made. Like using the gpu for updating agents, implementing better collision algorithms or using more realistic crowd simulation algorithms.  
 Another way of finding targets could be implemented by using dynamic flow fields, that direct agents towards eachother based on where they are located. There would need to be different flow fields for every team, and dynamically generating a flow field might be expensive. This would have to be tested.  
 
@@ -374,4 +381,32 @@ adding and removing agents to cells/resizing grid, causes asynchronisation, this
 
 
 
+## Sources
 
+##### Games that gave me inspiration:
+https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/
+https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/
+
+##### Cool videos:
+https://www.youtube.com/watch?v=2qfkEUV1w1I
+https://www.youtube.com/watch?v=kpojDPlIjdQ
+
+##### Object pooling:
+http://gameprogrammingpatterns.com/object-pool.html  
+
+##### GPU multithreading:
+https://www.pgroup.com/blogs/posts/cuda-threading-model.htm  
+
+##### Partitioning:
+https://gameprogrammingpatterns.com/spatial-partition.html
+http://homepage.divms.uiowa.edu/~kvaradar/sp2012/daa/ann.pdf
+
+##### Crowd simulation:
+http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf
+https://en.wikipedia.org/wiki/Crowd_simulation
+Graphical:
+https://developer.download.nvidia.com/SDK/10/direct3d/Source/SkinnedInstancing/doc/SkinnedInstancingWhitePaper.pdf
+
+##### Pathfinding:
+https://www.redblobgames.com/pathfinding/a-star/introduction.html
+http://www.scholarpedia.org/article/Ant_colony_optimization
