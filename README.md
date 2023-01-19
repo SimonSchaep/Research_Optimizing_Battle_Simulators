@@ -1,7 +1,15 @@
 # Optimizing Battle Simulators  
   
+<img src="https://your-image-url.type" width="100" height="100">
+.cropped {
+width: 150px; 
+height: 150px; 
+overflow: hidden;
+}
 
-![Test](Images/Overview.gif)
+.cropped img {
+margin: -150px 0px 0px -150px;
+}
 ## Introduction  
   
 This is a small research project on how to optimize a large amount of ai agents in a battle simulator.  
