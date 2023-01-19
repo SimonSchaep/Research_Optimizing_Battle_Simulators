@@ -6,18 +6,20 @@
   
 This is a small research project on how to optimize a large amount of ai agents in a battle simulator.  
 Inspired by the millions of agents that some battle simulators can simulate.  
-A good example of this is Ultimate Epic Battle Simulator (https://store.steampowered.com/app/616560/Ultimate_Epic_Battle_Simulator/),  
-and its sequel Ultimate Epic Battle Simulator 2 (https://store.steampowered.com/app/1468720/Ultimate_Epic_Battle_Simulator_2/).  
+A good example of this is Ultimate Epic Battle Simulator, and its sequel Ultimate Epic Battle Simulator 2.  
   
 There are of course many aspects to making a battle simulator, I will try to cover most of the important ones and implement some of them in a small battle simulator application.  
 
-There is an insane amount of depth to this, since almost all optimization techniques for games could be applied to a battle simulator. This reseach project won't go as in depth into all these topics as the references I learned from, so I suggest you take a look at the resources I linked at the bottom of this page if you are interested in a specific topic.
+There is an insane amount of depth to this, since almost all optimization techniques for games could be applied to a battle simulator. This reseach project won't go as in depth into all these topics as I would have wanted to. If you are interested in a specific topic, I suggest you take a look at the sources I linked at the bottom of this page.
   
-All the code will be in separate branches depending on what partitioning technique I used, since that made the most difference between implementations. All other things are implemented in all branches.  
+All the code will be in separate branches depending on what partitioning technique I used, since that made the most difference between implementations. All other things are implemented in every branch.  
 
 If you want to run the code you need to make sure you download the external dependencies and add them to the same path the folder with the source code is in.
   
-![](Images/folder structure.png)
+![](Images/folderstructure.png)
+![](Images/sourcecontents.png)
+  
+  
   
   
   
