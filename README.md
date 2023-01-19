@@ -17,6 +17,7 @@ All the code will be in separate branches depending on what partitioning techniq
 
 If you want to run the code you need to make sure you download the external dependencies and add them to the same path the folder with the source code is in.
   
+![](Images/folder structure.png)
   
   
   
