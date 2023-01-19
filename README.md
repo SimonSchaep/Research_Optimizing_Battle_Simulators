@@ -52,8 +52,10 @@ There are of course many aspects to making a battle simulator, I will try to cov
 
 There is an insane amount of depth to this, since almost all optimization techniques for games could be applied to a battle simulator. This reseach project won't go as in depth into all these topics as the references I learned from, so I suggest you take a look at the resources I linked at the bottom of this page if you are interested in a specific topic.
   
-All the code will be in separate branches depending on what partitioning technique I used. Since that made the most difference between implementations, all other things are implemented in all branches  
-  
+All the code will be in separate branches depending on what partitioning technique I used, since that made the most difference between implementations. All other things are implemented in all branches.  
+
+If you want to run the code you need to make sure you download the external dependencies and add them to the same path the folder with the source code is in.
+
   
 explain gpu  
 explain crowd simulation  
