@@ -350,9 +350,61 @@ http://www.scholarpedia.org/article/Ant_colony_optimization
 
 
 ## Performance Tests Analysis
-The purpose of these measurements isn't to super accurately know which impact every technique has, but more so to get an idea of which situations each technique might be the best choice.
 
-Not all results fully make sense, maybe the way I measure is flawed?
+#### Introduction:
+After finishing the application, I did some additional tests to try and find which techniques made the most impact on performance. I also wanted to find the most performant combination for different situations.
+The purpose of these measurements isn’t to get super accurate results, so there’s a pretty big error margin since I didn’t spend time doing multiple measurements to get more accurate results.
+
+I measured the different partitioning techniques in different situations, as well as measuring how much of an effect multithreading and separation had on the fps.
+I defined 4 different benchmarks for agent counts:
+B1: 500 agents in every team
+B2: 1000 agents in every team
+B3: 3000 agents in every team
+B4: 6000 agents in every team
+(There are four teams)
+Each partitioning technique was tested with various densities, which means different grid sizes for grid partitioning and different maximum agent counts per node with the quad tree.
+I also made a distinction between the start of the simulation and while agents are in combat.
+There is a difference since at the start, agents are spread out. While during combat, they are much closer together, especially when separation is disabled.
+All measurements during combat were taken ten seconds after spawning the agents.
+
+After all those tests I did a few extra ones:
+- 20 000 vs 20 000 agents, to test the limits
+- B3 test, but with double the world size, to test the impact of a bigger world
+
+#### Analysis:
+First of all, it’s obvious that without optimizations, the battle simulator runs quite poorly.
+With a low count of agents it actually still runs fine, but fps very quickly goes down when more agents are on the battlefield. This is an indicator that performance exponentially decreases.
+Performance is also better during combat, since agents start dying very quickly, which reduces the amount that have to be updated.
+Image 1
+This stays the same when using multithreading, but overall performance is increased.
+Image 2
+When using separation, performance stays the same during combat, since it takes longer for them to find a target, because they can’t move through each other.
+Image 3
+
+For grid partitioning without multithreading or separation, we can see a notable increase in performance when there are many agents, similar to what multithreading did.
+There is also quite a big difference when using different grid sizes. At the start of the simulation, the 100x100 grid performs a lot worse compared to the others. But during combat it actually performs the best.
+Image, Image
+This stays true when using multithreading and separation
+
+Similar results can be found when doing target acquisition in the grid.
+But the overall performance is increased, especially with a higher number of agents. This means that our target finding is becoming less exponential.
+Image, Image
+Note that when using multithreading and a 100x100 grid, the performance with just a grid is identical to doing target finding in the grid. I have no idea why but it is worth mentioning.
+
+For the Quad tree implementation, we can see overall improved results over the grid, but not when we compare it to the grid with target finding done in the grid.
+This is mostly since performance goes down during combat, when agents get bunched up together.
+This is contrary to what I expected, since a quad tree is supposed to perform better when agents are less spread across the world.
+Image, Image
+
+Increasing world size seems to increase the performance on average as well, but it’s not consistent and the difference is also not a lot. But experimenting with different sizes can definitely have some impact on framerate.
+Image
+
+#### Conclusion:
+When we enable multithreading and separation, and compare every partitioning technique during combat, we can see that the quad tree and grid partitioning are a big improvement compared to using no partitioning. A grid seems best for a lower amount of agents, and a quad tree performs better for a higher amount of agents.
+Using a grid and doing target finding in the grid seems to be the best performing technique overall.
+Image
+This trend continues even when using a very large number of agents.
+Image
 
 
 
