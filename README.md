@@ -308,6 +308,7 @@ After all those tests I did a few extra ones:
 - 20 000 vs 20 000 agents, to test the limits
 - B3 test, but with double the world size, to test the impact of a bigger world
   
+Results: (.xlsx file is also included in main)
 ![](Images/measurements.png)  
   
   
