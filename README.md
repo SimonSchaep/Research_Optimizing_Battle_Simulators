@@ -16,8 +16,10 @@ All the code will be in separate branches depending on what partitioning techniq
 
 If you want to run the code you need to make sure you download the external dependencies and add them to the same path the folder with the source code is in.
   
-![](Images/folderstructure.png)
-![](Images/sourcecontents.png)
+Folder structure:  
+![](Images/folderstructure.png)  
+Contents of source:  
+![](Images/sourcecontents.png)  
   
   
   
@@ -26,26 +28,30 @@ If you want to run the code you need to make sure you download the external depe
   
 ## Base Application  
   
-So, for our own battle simulator that we'll be using to test some optimization techniques, we'll be working in c++ (since it's fast) and using a framework that has a camera, UI and allows us to draw. It also has some basic structs like vector2. We won't be using any in-built physics systems or ai pathfinding since those can be very expensive and I want to explore all the important aspects of optimizing a battle simulator.  
+For the battle simulator that I'll be using to test some optimization techniques, I'll be working in c++ (since You have more control over how memory is managed) and using a framework that has a camera, UI and allows us to draw. It also has some basic structs like vector2. We won't be using any in-built physics systems or ai pathfinding since those can be very expensive and I want to explore all the important aspects of optimizing a battle simulator.  
   
-We have an agent, every frame, it will try to find the closest enemy target, then calculate the velocity (which will be a vector towards the target), and moves according to that velocity, when it is in attack range, it will stop moving and try to attack.  
+This is the simple logic behind every agent:  
+Every frame, try to find the closest enemy target, then calculate the velocity (which will be a vector towards the target), and move according to that velocity, when   the target is in attack range, the agent will stop moving and try to attack.  
   
-Our agent will have a simple health component, that we use to do all the health calculations and it tells us when we're dead. It will also have a melee attack component, which we use to attack other agents.  
+The agent will have a simple health component, that is used to do all the health calculations and it tells us when they agent is dead. It will also have a melee attack component, which is used to attack other agents.  
   
   
-Since this is a battle simulator there will be lots of agents dying and spawning. Constantly deallocating and reallocating memory for these agents would be very expensive, so we will eb using an object pool. This means we will allocate a lot of agents at the start of the application and set their state to disabled, and when we want to spawn an agent, we will find a disabled agent and enable it. Whenever an agent dies we will disable it.  
-We hold these agents in two separate vectors, since we don't want to loop over all the disabled agents every frame. This way the size of our initial pool won't impact our runtime speed. It will still impact the startup time of the application.  
+Since this is a battle simulator there will be lots of agents dying and spawning. Constantly deallocating and reallocating memory for these agents would be very expensive, so I will be using an object pool. This means I will allocate a lot of agents at the start of the application and set their state to disabled, and when an agent needs to be spawned, the pool will find a disabled agent and enable it. Whenever an agent dies it will be disabled.  
+These agents are held in two separate vectors, since looping over all the disabled agents every frame would be very inefficient. This way the size of the initial pool won't impact the runtime speed. It will still impact the startup time of the application.  
   
 There are two more disadvantages:  
-- There might be a lot more memory used by the application than what is actually necessary, or there might not be enough memory allocated and our pool overflows. That   last one can be fixed by detecting when the pool will overflow and then create more agents during runtime.  
-- We need to be careful and make sure when we disable an agent, that everything is properly reset, so nothing is remembered and carried over to the next life of the agent  
+- There might be a lot more memory used by the application than what is actually necessary, or there might not be enough memory allocated and our pool overflows. That   last one can be fixed by detecting when the pool will overflow and then creating more agents during runtime.  
+- You need to be careful and make sure when you disable an agent, that everything is properly reset, so nothing is remembered and carried over to the next life of the agent  
 
 
-In our main application, I added a few options to be able to test everything, you can spawn agents by clicking a button, which will spawn agents according to the values you put in.  
+In the main application, I added a few options to be able to test everything. You can spawn agents by clicking a button, which will spawn agents according to the values you put in.  
 You can also spawn agents by dragging the mouse, after selecting a team by pressing the number keys.  
 You can delete agents by pressing backspace or the clear agents button in the UI.  
 There is also a timescale slider to speed up or slow down the simulator.  
 And there are some more settings that will be explained further in this readme.  
+  
+![](Images/settings1.png)
+![](Images/settings2.png)
   
   
   
@@ -54,16 +60,24 @@ And there are some more settings that will be explained further in this readme.
   
 ## Multithreading  
   
-One of the most efficient ways of optimizing any application is using more than one thread of your cpu. The idea is that you run tasks on multiple threads simultaneously. This can multiply the speed of an applications by a lot, depending on how many cores your cpu has.  
-We will use multithreading on the biggest bottleneck of the battlesimulator, updating agents. This is relatively easy since we are already doing this in a for loop, we can use concurrency::parallel_for.  
-Since multiple threads are accessing some of the same resources, there are some issues that emerge.  
-A first issue is with the way we are disabling our agents, we can't delete our agents from the vector we are looping over so we are instead adding their index to a list of indexes of agents that need to be removed. After the agents are updated, this list is looped over and we remove the according agents.  
-Using multithreading you need to make sure you don't resize a vector during a parallel thread, because resizing might make the vector relocate to a different part of memory, that the other threads don't know about. Since we are doing a pushback and this can cause a vector to resize when it's size would be bigger than the capacity, we need to fix this. Luckily this is easily done by reserving enough size to the vector before starting the parallel threads. This does use more memory than necessary in most cases since there is the possibility that all agents will be disabled, so the reserve should reserve memory enough for all the enabled agents. An added benefit is that it should be faster when disabling many agents at once since there won't be constant resizing. But in all other cases there is memory 'wasted'.  
-Another issue happens with the way we are removing agents.  
-We remove agents by replacing the agent with the last agent of the vector, and then remove the last agent, this is faster than removing an agent from the middle of a vector, since all subsequent elements would have to be moved. Using a list, this would not be the case, but since we need to constantly access our agents the constant lookup time of a vector is preferred.  
-This means we have to start with the highest index of agents that need to be disabled and end with the first one. Otherwise we might be disabling the wrong agents.  
-For example we have 10 enabled agents, we need to disable agent 0, 5 and 9. doing this from 0 to 9 happens like this:  
+One of the most efficient ways of optimizing any application is using more than one thread of your cpu. The idea is that you run tasks on multiple threads simultaneously. This can multiply the speed of an applications by a lot, depending on how many threads your cpu has.  
+I will use multithreading on the biggest bottleneck of the battlesimulator, updating agents. Since this is already done in a for loop, I will use concurrency::parallel_for. (This is part of the <ppl.h> header)  
+Since multiple threads are accessing some of the same resources, there are issues that emerge.  
+  
+A first issue is with the way our agents are getting disabled, I can't delete the agents from the vector that is being looped over so instead I will add their index to a list of indexes of agents that need to be removed. After the agents are updated, this list is looped over and the agents are removed.  
+  
+Using multithreading you need to make sure you don't resize a vector during a parallel thread, because resizing might make the vector relocate to a different part of memory, that the other threads don't know about. Since a pushback can cause a vector to resize when it's size would be bigger than the capacity, we need to fix this. 
+  
+Luckily this is easily done by reserving enough size to the vector before starting the parallel threads. This does use more memory than necessary in most cases since there is the possibility that all agents will be disabled, so the reserve should reserve memory enough for all the enabled agents. An added benefit is that it should be faster when disabling many agents at once since there won't be constant resizing. But in all other cases there is memory 'wasted'.  
+  
+Another issue happens with the order in which agents are being removed.  
+I am removing agents by replacing the agent with the last agent of the vector, and then removing the last agent, this is faster than removing an agent from the middle of a vector, since all subsequent elements would have to be moved. Using a list, this would not be an issue, but since agents frequently need to be accessed, the constant lookup time of a vector is preferred.  
+  
+When you remove agents starting from the first one in the vector you might be disabling the wrong agents.  
+For example, we have 10 enabled agents, we need to disable agent 0, 5 and 9. Doing this from 0 to 9 happens like this:  
+
 (read agent[n] as agent at index n)  
+
 start with 0, 1, 2, 3, 4, 5, 6, 7, 8, 9  
 agent[0] is swapped with 9  
 9, 1, 2, 3, 4, 5, 6, 7, 8, 0  
@@ -79,7 +93,7 @@ agent[7] is deleted
 9, 1, 2, 3, 4, 8, 6, null, null, 7  
 so 9 did not get deleted, and 7 got put after where the vector ends.  
   
-if we sort the list of agent indexes to be removed: (9,5,0)  
+if we start with the highest index: (9,5,0)  
 start with 0, 1, 2, 3, 4, 5, 6, 7, 8, 9  
 agent[9] is swapped with 9  
 0, 1, 2, 3, 4, 5, 6, 7, 8, 9  
@@ -95,19 +109,24 @@ agent[7] is deleted
 7, 1, 2, 3, 4, 8, 6, null, null, null  
 our final enabled agents are 1, 2, 3, 4, 6, 7 and 8  
 this is what we want.  
-
-
-This issue can be fixed by sorting the list after updating the agents.  
+  
+  
+So sorting the vector is the solution to this issue.
 There are multiple sorting algorithms.  
-I tested std::qsort, std::sort and std::stableSort. They all didn't impact the framerate at all, probably because the list to sort usually isn't that big.  
+I tested std::qsort, std::sort and std::stableSort. Since the list to sort usually isn't that big, it doesn't matter which one is used.  
 
-There are some more issues that will emerge later on when we use partitioning, but I'll explain them at the appropriate time.  
+There are some more issues that will emerge later on when partitioning is used, but I'll explain them at the appropriate time.  
 
-It is important to also mention the gpu here. Gpus also use parallelism, but they have many more cores compared to a cpu, and also more threads per core. This allows them to run code a lot faster than a cpu, they are however more limited in memory.  
-Commercial battle simulators (like UEBS 2) are often running a lot of code on the gpu which drastically improves performance and allows for many more agents to be simulated. It is however a lot more complicated than cpu programming, so I won't implement it in this project.  
+It is important to also mention the gpu here. Gpus also use parallelism, but they have many more cores compared to a cpu, and also more threads per core. This allows them to run code in parallel a lot faster than a cpu, they are however more limited in memory.  
+Commercial battle simulators (like UEBS 2) are often running almost all code on the gpu which drastically improves performance and allows for many more agents to be simulated. It is however a lot more complicated than cpu programming, so I won't implement it in this project.  
 
 
-Note that the way I implement multithreading here is not fully optimal, since as you can see on this image, the cpu is still not 100% utilized. There are also other cool things you can do with multithreading.  
+Note that the way I implement multithreading here is not fully optimal, since as you can see on this image, the cpu is still not 100% utilized. There are also other ways to do more efficient multithreading.  
+    
+No multithreading:  
+![](Images/nomultithreading.png)  
+Multithreading:  
+![](Images/multithreading.png)  
   
   
   
