@@ -386,7 +386,7 @@ My own eperimentation with doing the target finding in the grid turned out to be
 
 There are also probably a lot of inefficiencies that I'm doing since I'm not an expert programmer by far. I definitely learned a lot though and will probably do some follow-up research when I find the time.  
 
-I also talked about a lot of concepts (like flow fields) but didn't implement them, so my assumptions about them might be wrong. I definitely wnat to try and implement them in the future to test that out.  
+I also talked about a lot of concepts (like flow fields) but didn't implement them, so my assumptions about them might be wrong. I definitely want to try and implement them in the future to test that out.  
   
   
   
